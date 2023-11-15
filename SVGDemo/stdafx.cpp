@@ -1,5 +1,3 @@
-
-
 #include "stdafx.h"
 
 // TODO: reference any additional headers you need in STDAFX.H
@@ -7,6 +5,70 @@
 unsigned char opacity2alpha(double opacity) {
 	opacity = max(0.0, min(1.0, opacity));
 	return  static_cast<unsigned char>(opacity * 255.0);
+}
+
+Shape::Shape() {
+	this->fill.r = this->fill.g = this->fill.b = 0;
+	this->stroke.r = this->stroke.g = this->stroke.b = 0;
+	this->fillOpacity = 1.0;
+	this->strokeOpacity = 1.0;
+	this->strokeWidth = 0;
+}
+
+RectangleSVG::RectangleSVG() {
+	point.x = point.y = 0;
+	width = 0;
+	height = 0;
+}
+
+void RectangleSVG::drawRectangleSVG(Graphics& graphics) {
+    graphics.SetPixelOffsetMode(PixelOffsetModeHighQuality);
+
+    graphics.SetSmoothingMode(SmoothingModeAntiAlias);
+	unsigned char fillalpha, strokealpha;
+	fillalpha = opacity2alpha(fillOpacity);
+	strokealpha = opacity2alpha(strokeOpacity);
+	Pen pen(Color(strokealpha, stroke.r, stroke.b, stroke.g), strokeWidth);
+	Rect rect(point.x, point.y, width, height);
+	graphics.DrawRectangle(&pen, rect);
+	SolidBrush brush(Color(fillalpha, fill.r, fill.g, fill.b));
+	graphics.FillRectangle(&brush, rect);
+}
+
+TextSVG::TextSVG() {
+	point.x = point.y = 0;
+	int fontSize = 12;
+	info = "";
+}
+
+void TextSVG::drawTextSVG(Graphics& graphics) {
+    graphics.SetPixelOffsetMode(PixelOffsetModeHighQuality);
+    graphics.SetSmoothingMode(SmoothingModeAntiAlias);
+	unsigned char fillalpha, strokealpha;
+	fillalpha = opacity2alpha(fillOpacity);
+	strokealpha = opacity2alpha(strokeOpacity);
+	FontFamily  fontFamily(L"Times New Roman");
+	Font        font(&fontFamily, fontSize, FontStyleRegular, UnitPixel);
+	PointF      pointF(point.x - fontSize, point.y - fontSize);
+	SolidBrush  solidBrush(Color(fillalpha, fill.r, fill.g, fill.b));
+	wstring infostr = wstring(info.begin(), info.end());
+	const WCHAR* infocstr = infostr.c_str();
+	graphics.DrawString(infocstr, -1, &font, pointF, &solidBrush);
+    
+}
+
+LineSVG::LineSVG() {
+	from.x = from.y = to.x = to.y = 0;
+}
+
+void LineSVG::drawLineSVG(Graphics& graphics) {
+    graphics.SetPixelOffsetMode(PixelOffsetModeHighQuality);
+    graphics.SetSmoothingMode(SmoothingModeAntiAlias);
+	unsigned char fillalpha, strokealpha;
+	fillalpha = opacity2alpha(fillOpacity);
+	strokealpha = opacity2alpha(strokeOpacity);
+	Pen pen(Color(strokealpha, stroke.r, stroke.g, stroke.b), strokeWidth);
+	graphics.DrawLine(&pen, from.x, from.y, to.x, to.y);
 }
 
 CircleSVG::CircleSVG() {
