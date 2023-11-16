@@ -57,6 +57,7 @@ protected:
     RGB stroke;
     int strokeWidth;
     double strokeOpacity;
+    bool hasStroke;
 
 public:
     Shape();
