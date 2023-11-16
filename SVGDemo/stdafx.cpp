@@ -159,3 +159,125 @@ void PolygonSVG::drawPolygonSVG(Graphics& graphics) {
 	graphics.DrawPolygon(&pen, p, newP.size());
 	
 }
+
+void setProperties(char* nodeName, vector<pair<string, string>> a, Graphics& graphics)
+{
+    if (strcmp(nodeName, "rect") == 0)
+    {
+        RectangleSVG r;
+        r.setRect(a);
+        r.drawRectangleSVG(graphics);
+
+    }
+    else if (strcmp(nodeName, "text") == 0)
+    {
+        TextSVG r;
+        r.setText(a);
+        r.drawTextSVG(graphics);
+        // r.display();
+    }
+    else if (strcmp(nodeName, "circle") == 0)
+    {
+        CircleSVG r;
+        r.setCircle(a);
+        r.drawCircleSVG(graphics);
+
+    }
+    else if (strcmp(nodeName, "polyline") == 0)
+    {
+        PolylineSVG r;
+        r.setPolyline(a);
+        r.drawPolylineSVG(graphics);
+
+    }
+    else if (strcmp(nodeName, "ellipse") == 0)
+    {
+        EllipseSVG r;
+        r.setEllipse(a);
+        r.drawEllipseSVG(graphics);
+
+    }
+    else if (strcmp(nodeName, "line") == 0)
+    {
+        LineSVG r;
+        r.setLine(a);
+        r.drawLineSVG(graphics);
+
+    }
+    else if (strcmp(nodeName, "polygon") == 0)
+    {
+        PolygonSVG r;
+        r.setPolygon(a);
+        r.drawPolygonSVG(graphics);
+    }
+}
+
+RGB parseRGB(const string& s)
+{
+    RGB c;
+    string values = s.substr(4, s.size() - 5);
+    stringstream ss(values);
+    string token;
+    vector<int> a;
+
+    while (getline(ss, token, ','))
+    {
+        a.push_back(stoi(token));
+    }
+
+    c.r = static_cast<unsigned char>(a[0]);
+    c.g = static_cast<unsigned char>(a[1]);
+    c.b = static_cast<unsigned char>(a[2]);
+
+    //cout << s << " ";
+    //cout << static_cast<int>(c.r) << " " << static_cast<int>(c.g) << " " << static_cast<int>(c.b) << endl;
+    return c;
+}
+void Shape::setShape(const string& attributeName, const string& attributeValue)
+{
+    if (attributeName == "fill-opacity")
+    {
+        this->fillOpacity = stod(attributeValue);
+    }
+    else if (attributeName == "fill")
+    {
+        this->fill = parseRGB(attributeValue);
+    }
+    else if (attributeName == "stroke")
+    {
+        this->stroke = parseRGB(attributeValue);
+    }
+    else if (attributeName == "stroke-width")
+    {
+        this->strokeWidth = stoi(attributeValue);
+    }
+    else if (attributeName == "stroke-opacity")
+    {
+        this->strokeOpacity = stod(attributeValue);
+    }
+}
+void RectangleSVG::setRect(vector<pair<string, string>>& a)
+{
+    for (int i = 0; i < a.size(); i++)
+    {
+        const string& attributeName = a[i].first;
+        const string& attributeValue = a[i].second;
+        if (attributeName == "x")
+        {
+            this->point.x = stoi(attributeValue);
+        }
+        else if (attributeName == "y")
+        {
+            this->point.y = stoi(attributeValue);
+        }
+        else if (attributeName == "width")
+        {
+            this->width = stoi(attributeValue);
+        }
+        else if (attributeName == "height")
+        {
+            this->height = stoi(attributeValue);
+        }
+        else (*this).setShape(attributeName, attributeValue);
+    }
+}
