@@ -11,7 +11,7 @@ Shape::Shape() {
 	this->fill.r = this->fill.g = this->fill.b = 0;
 	this->stroke.r = this->stroke.g = this->stroke.b = 0;
 	this->fillOpacity = 1.0;
-	this->strokeOpacity = 1.0;
+	this->strokeOpacity = 0.0;
 	this->strokeWidth = 0;
 }
 
