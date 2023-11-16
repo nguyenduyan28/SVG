@@ -11,8 +11,9 @@ Shape::Shape() {
 	this->fill.r = this->fill.g = this->fill.b = 0;
 	this->stroke.r = this->stroke.g = this->stroke.b = 0;
 	this->fillOpacity = 1.0;
-	this->strokeOpacity = 0.0;
-	this->strokeWidth = 0;
+	this->strokeOpacity = 1.5;
+	this->strokeWidth = 2;
+    this->hasStroke = false;
 }
 
 RectangleSVG::RectangleSVG() {
@@ -245,16 +246,20 @@ void Shape::setShape(const string& attributeName, const string& attributeValue)
     }
     else if (attributeName == "stroke")
     {
+        this->hasStroke = true;
         this->stroke = parseRGB(attributeValue);
     }
     else if (attributeName == "stroke-width")
     {
+        this->hasStroke = true;
         this->strokeWidth = stoi(attributeValue);
     }
     else if (attributeName == "stroke-opacity")
     {
+        this->hasStroke = true;
         this->strokeOpacity = stod(attributeValue);
     }
+    
 }
 void RectangleSVG::setRect(vector<pair<string, string>>& a)
 {
@@ -279,6 +284,11 @@ void RectangleSVG::setRect(vector<pair<string, string>>& a)
             this->height = stoi(attributeValue);
         }
         else (*this).setShape(attributeName, attributeValue);
+    }
+    if (this->hasStroke == false)
+    {
+        this->strokeWidth = 0;
+        this->strokeOpacity = 0;
     }
 }
 
@@ -313,6 +323,11 @@ void TextSVG::setText(vector<pair<string, string>>a)
             this->info = string(attributeValue);
         }
     }
+    if (this->hasStroke == false)
+    {
+        this->strokeWidth = 0;
+        this->strokeOpacity = 0;
+    }
 }
 
 void CircleSVG::setCircle(vector<pair<string, string>>a)
@@ -334,6 +349,11 @@ void CircleSVG::setCircle(vector<pair<string, string>>a)
             this->radius = stoi(attributeValue);
         }
         else (*this).setShape(attributeName, attributeValue);
+    }
+    if (this->hasStroke == false)
+    {
+        this->strokeWidth = 0;
+        this->strokeOpacity = 0;
     }
 }
 
@@ -364,6 +384,11 @@ void PolylineSVG::setPolyline(vector<pair<string, string>>a)
         }
         else (*this).setShape(attributeName, attributeValue);
     }
+    if (this->hasStroke == false)
+    {
+        this->strokeWidth = 0;
+        this->strokeOpacity = 0;
+    }
 }
 
 void EllipseSVG::setEllipse(vector<pair<string, string>>a)
@@ -389,6 +414,11 @@ void EllipseSVG::setEllipse(vector<pair<string, string>>a)
             this->radiusY = stoi(attributeValue);
         }
         else (*this).setShape(attributeName, attributeValue);
+    }
+    if (this->hasStroke == false)
+    {
+        this->strokeWidth = 0;
+        this->strokeOpacity = 0;
     }
 }
 
@@ -416,16 +446,24 @@ void LineSVG::setLine(vector<pair<string, string>>a)
         }
         else if (attributeName == "stroke")
         {
+            this->hasStroke = true;
             this->stroke = parseRGB(attributeValue);
         }
         else if (attributeName == "stroke-width")
         {
+            this->hasStroke = true;
             this->strokeWidth = stoi(attributeValue);
         }
         else if (attributeName == "stroke-opacity")
         {
+            this->hasStroke = true;
             this->strokeOpacity = stod(attributeValue);
         }
+    }
+    if (this->hasStroke == false)
+    {
+        this->strokeWidth = 0;
+        this->strokeOpacity = 0;
     }
 }
 
@@ -441,5 +479,10 @@ void PolygonSVG::setPolygon(vector<pair<string, string>>a)
             this->points = parsePoints(attributeValue);
         }
         else (*this).setShape(attributeName, attributeValue);
+    }
+    if (this->hasStroke == false)
+    {
+        this->strokeWidth = 0;
+        this->strokeOpacity = 0;
     }
 }
