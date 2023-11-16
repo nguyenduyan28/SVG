@@ -133,10 +133,7 @@ public:
 
 class PolygonSVG : public Shape {
 private:
-    vector<Points> points = {
-        {50,75}, {379,161}, {469,161}, {397,215}, {423,301}, {350,250}, {277,301}, {303,215 }, {231, 161}, {321, 161}
-    };
-
+    vector<Points> points;
 public:
     PolygonSVG();
     void drawPolygonSVG(Graphics& graphics);
