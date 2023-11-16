@@ -4,7 +4,45 @@
 
 
 void DrawSVGFile(string& filename, HDC hdc) {
-    
+    Graphics graphics(hdc);
+
+    xml_document<> doc;
+
+    ifstream file("sample.svg");
+    vector<char> buffer((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+
+    buffer.push_back('\0');
+    doc.parse<0>(&buffer[0]);
+
+    xml_node<>* rootNode = doc.first_node();
+    xml_node<>* node = rootNode->first_node();
+
+    while (node)
+    {
+        char* nodeName = node->name();
+        //cout << nodeName << " - ";
+
+        xml_attribute<>* currentAttribute = node->first_attribute();
+
+        vector<pair<string, string>>a;
+        while (currentAttribute != NULL)
+        {
+            char* attributeName = currentAttribute->name();
+            char* attributeValue = currentAttribute->value();
+
+            a.push_back({ attributeName, attributeValue });
+            //std::cout << "Attribute Name: " << attributeName << ", Attribute Value: " << attributeValue << std::endl;
+            currentAttribute = currentAttribute->next_attribute();
+        }
+        if (strcmp(nodeName, "text") == 0)
+        {
+            a.push_back({ "text", node->value() });
+            //cout << node->value() << endl; 
+        }
+        setProperties(nodeName, a, graphics);
+
+        node = node->next_sibling();
+    }
 
 }
 
