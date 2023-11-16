@@ -314,3 +314,132 @@ void TextSVG::setText(vector<pair<string, string>>a)
         }
     }
 }
+
+void CircleSVG::setCircle(vector<pair<string, string>>a)
+{
+    for (int i = 0; i < a.size(); i++)
+    {
+        const string& attributeName = a[i].first;
+        const string& attributeValue = a[i].second;
+        if (attributeName == "cx")
+        {
+            this->point.x = stoi(attributeValue);
+        }
+        else if (attributeName == "cy")
+        {
+            this->point.y = stoi(attributeValue);
+        }
+        else if (attributeName == "r")
+        {
+            this->radius = stoi(attributeValue);
+        }
+        else (*this).setShape(attributeName, attributeValue);
+    }
+}
+
+vector<Points> parsePoints(const string& a)
+{
+    vector<Points> points;
+    stringstream ss(a);
+
+    while (!ss.eof()) {
+        Points p;
+        char comma;
+        ss >> p.x >> comma >> p.y;
+        points.push_back(p);
+    }
+    return points;
+}
+
+
+void PolylineSVG::setPolyline(vector<pair<string, string>>a)
+{
+    for (int i = 0; i < a.size(); i++)
+    {
+        const string& attributeName = a[i].first;
+        const string& attributeValue = a[i].second;
+        if (attributeName == "points")
+        {
+            this->points = parsePoints(attributeValue);
+        }
+        else (*this).setShape(attributeName, attributeValue);
+    }
+}
+
+void EllipseSVG::setEllipse(vector<pair<string, string>>a)
+{
+    for (int i = 0; i < a.size(); i++)
+    {
+        const string& attributeName = a[i].first;
+        const string& attributeValue = a[i].second;
+        if (attributeName == "cx")
+        {
+            this->c.x = stoi(attributeValue);
+        }
+        else if (attributeName == "cy")
+        {
+            this->c.y = stoi(attributeValue);
+        }
+        else if (attributeName == "rx")
+        {
+            this->radiusX = stoi(attributeValue);
+        }
+        else if (attributeName == "ry")
+        {
+            this->radiusY = stoi(attributeValue);
+        }
+        else (*this).setShape(attributeName, attributeValue);
+    }
+}
+
+void LineSVG::setLine(vector<pair<string, string>>a)
+{
+    for (int i = 0; i < a.size(); i++)
+    {
+        const string& attributeName = a[i].first;
+        const string& attributeValue = a[i].second;
+        if (attributeName == "x1")
+        {
+            this->from.x = stoi(attributeValue);
+        }
+        else if (attributeName == "y1")
+        {
+            this->from.y = stoi(attributeValue);
+        }
+        else if (attributeName == "x2")
+        {
+            this->to.x = stoi(attributeValue);
+        }
+        else if (attributeName == "y2")
+        {
+            this->to.y = stoi(attributeValue);
+        }
+        else if (attributeName == "stroke")
+        {
+            this->stroke = parseRGB(attributeValue);
+        }
+        else if (attributeName == "stroke-width")
+        {
+            this->strokeWidth = stoi(attributeValue);
+        }
+        else if (attributeName == "stroke-opacity")
+        {
+            this->strokeOpacity = stod(attributeValue);
+        }
+    }
+}
+
+void PolygonSVG::setPolygon(vector<pair<string, string>>a)
+{
+    for (int i = 0; i < a.size(); i++)
+    {
+        const string& attributeName = a[i].first;
+        const string& attributeValue = a[i].second;
+
+        if (attributeName == "points")
+        {
+            this->points = parsePoints(attributeValue);
+        }
+        else (*this).setShape(attributeName, attributeValue);
+    }
+}
