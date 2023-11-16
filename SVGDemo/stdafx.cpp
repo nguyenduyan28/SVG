@@ -281,3 +281,36 @@ void RectangleSVG::setRect(vector<pair<string, string>>& a)
         else (*this).setShape(attributeName, attributeValue);
     }
 }
+
+void TextSVG::setText(vector<pair<string, string>>a)
+{
+    for (int i = 0; i < a.size(); i++)
+    {
+        const string& attributeName = a[i].first;
+        const string& attributeValue = a[i].second;
+        if (attributeName == "x")
+        {
+            this->point.x = stoi(attributeValue);
+        }
+        else if (attributeName == "y")
+        {
+            this->point.y = stoi(attributeValue);
+        }
+        else if (attributeName == "fill")
+        {
+            this->fill = parseRGB(attributeValue);
+        }
+        else if (attributeName == "fill-opacity")
+        {
+            this->fillOpacity = stod(attributeValue);
+        }
+        else if (attributeName == "font-size")
+        {
+            this->fontSize = stoi(attributeValue);
+        }
+        else if (attributeName == "text")
+        {
+            this->info = string(attributeValue);
+        }
+    }
+}
