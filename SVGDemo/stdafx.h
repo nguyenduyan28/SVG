@@ -44,7 +44,7 @@ struct RGB {
 };
 
 struct Points {
-    int x, y;
+    float x, y;
 };
 
 void setProperties(char* nodeName, vector<pair<string, string>> a, Graphics& graphics);
@@ -58,9 +58,14 @@ protected:
     int strokeWidth;
     double strokeOpacity;
     bool hasStroke;
+    Points translate;
+    double rotate;
+    Points scale;
+
 
 public:
     Shape();
+    virtual void drawShape();
     void setShape(const string& a, const string& b);
 
 };
@@ -141,3 +146,13 @@ public:
     void setPolygon(vector<pair<string, string>>a);
 };
 
+class PathSVG : public Shape {
+private:
+    Points startPoint;
+    Points curPoint;
+    vector <pair <char, vector<Points>>> dData;
+public:
+    PathSVG();
+    void updatePoint(Points newPoint);
+    void drawPathSVG(Graphics& graphics, GraphicsPath& myPath);
+};
