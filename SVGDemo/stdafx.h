@@ -66,7 +66,7 @@ protected:
 public:
     Shape();
     virtual void drawShape();
-    void setShape(const string& a, const string& b);
+    void setShape(const string& a, string& b);
 
 };
 vector<Points> parsePoints(const string& p);
@@ -154,5 +154,6 @@ private:
 public:
     PathSVG();
     void updatePoint(Points newPoint);
-    void drawPathSVG(Graphics& graphics, GraphicsPath& myPath);
+    void drawPathSVG(Graphics& graphics);
+    void setPath(vector<pair<string, string>>a);
 };
