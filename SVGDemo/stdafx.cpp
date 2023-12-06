@@ -175,7 +175,6 @@ void setProperties(char* nodeName, vector<pair<string, string>> a, Graphics& gra
         TextSVG r;
         r.setText(a);
         r.drawTextSVG(graphics);
-        // r.display();
     }
     else if (strcmp(nodeName, "circle") == 0)
     {
@@ -211,6 +210,12 @@ void setProperties(char* nodeName, vector<pair<string, string>> a, Graphics& gra
         r.setPolygon(a);
         r.drawPolygonSVG(graphics);
     }
+    else if (strcmp(nodeName, "path") == 0)
+    {
+        PathSVG r;
+        r.setPath(a);
+        r.drawPathSVG(graphics);
+    }
 }
 
 RGB parseRGB(const string& s)
@@ -226,6 +231,10 @@ RGB parseRGB(const string& s)
         a.push_back(stoi(token));
     }
 
+    for (int i = 0; i < a.size(); i++) {
+        if (a[i] > 255) a[i] = 255;
+   }
+
     c.r = static_cast<unsigned char>(a[0]);
     c.g = static_cast<unsigned char>(a[1]);
     c.b = static_cast<unsigned char>(a[2]);
@@ -234,7 +243,7 @@ RGB parseRGB(const string& s)
     //cout << static_cast<int>(c.r) << " " << static_cast<int>(c.g) << " " << static_cast<int>(c.b) << endl;
     return c;
 }
-void Shape::setShape(const string& attributeName, const string& attributeValue)
+void Shape::setShape(const string& attributeName, string& attributeValue)
 {
     if (attributeName == "fill-opacity")
     {
@@ -259,14 +268,47 @@ void Shape::setShape(const string& attributeName, const string& attributeValue)
         this->hasStroke = true;
         this->strokeOpacity = stod(attributeValue);
     }
-    
+
+    else if (attributeName == "transform")
+    {
+        for (int i = 0; i < attributeValue.length(); i++)
+        {
+            if (attributeValue[i] == '(' || attributeValue[i] == ')')
+            {
+                attributeValue[i] = ' ';
+            }
+        }
+        stringstream ss(attributeValue);
+        string token;
+        while (ss >> token)
+        {
+            if (token == "translate" || token == "rotate" || token == "scale")
+            {
+                string transformType = token;
+                Points p;
+                ss >> p.x;
+                if (ss.peek() == ',')
+                {
+                    ss.ignore();
+                    ss >> p.y;
+                }
+                else
+                {
+                    p.y = p.x;
+                }
+                if (token == "rotate") this->rotate = p.x;
+                else if (token == "translate") this->translate.x = p.x, this->translate.y = p.y;
+                else this->scale.x = p.x, this->scale.y = p.y;
+            }
+        }
+    }
 }
 void RectangleSVG::setRect(vector<pair<string, string>>& a)
 {
     for (int i = 0; i < a.size(); i++)
     {
         const string& attributeName = a[i].first;
-        const string& attributeValue = a[i].second;
+        string& attributeValue = a[i].second;
         if (attributeName == "x")
         {
             this->point.x = stoi(attributeValue);
@@ -297,7 +339,7 @@ void TextSVG::setText(vector<pair<string, string>>a)
     for (int i = 0; i < a.size(); i++)
     {
         const string& attributeName = a[i].first;
-        const string& attributeValue = a[i].second;
+        string& attributeValue = a[i].second;
         if (attributeName == "x")
         {
             this->point.x = stoi(attributeValue);
@@ -305,14 +347,6 @@ void TextSVG::setText(vector<pair<string, string>>a)
         else if (attributeName == "y")
         {
             this->point.y = stoi(attributeValue);
-        }
-        else if (attributeName == "fill")
-        {
-            this->fill = parseRGB(attributeValue);
-        }
-        else if (attributeName == "fill-opacity")
-        {
-            this->fillOpacity = stod(attributeValue);
         }
         else if (attributeName == "font-size")
         {
@@ -322,6 +356,7 @@ void TextSVG::setText(vector<pair<string, string>>a)
         {
             this->info = string(attributeValue);
         }
+        else (*this).setShape(attributeName, attributeValue);
     }
     if (this->hasStroke == false)
     {
@@ -335,7 +370,7 @@ void CircleSVG::setCircle(vector<pair<string, string>>a)
     for (int i = 0; i < a.size(); i++)
     {
         const string& attributeName = a[i].first;
-        const string& attributeValue = a[i].second;
+        string& attributeValue = a[i].second;
         if (attributeName == "cx")
         {
             this->point.x = stoi(attributeValue);
@@ -377,7 +412,7 @@ void PolylineSVG::setPolyline(vector<pair<string, string>>a)
     for (int i = 0; i < a.size(); i++)
     {
         const string& attributeName = a[i].first;
-        const string& attributeValue = a[i].second;
+        string& attributeValue = a[i].second;
         if (attributeName == "points")
         {
             this->points = parsePoints(attributeValue);
@@ -396,7 +431,7 @@ void EllipseSVG::setEllipse(vector<pair<string, string>>a)
     for (int i = 0; i < a.size(); i++)
     {
         const string& attributeName = a[i].first;
-        const string& attributeValue = a[i].second;
+        string& attributeValue = a[i].second;
         if (attributeName == "cx")
         {
             this->c.x = stoi(attributeValue);
@@ -459,6 +494,7 @@ void LineSVG::setLine(vector<pair<string, string>>a)
             this->hasStroke = true;
             this->strokeOpacity = stod(attributeValue);
         }
+
     }
     if (this->hasStroke == false)
     {
@@ -472,7 +508,7 @@ void PolygonSVG::setPolygon(vector<pair<string, string>>a)
     for (int i = 0; i < a.size(); i++)
     {
         const string& attributeName = a[i].first;
-        const string& attributeValue = a[i].second;
+        string& attributeValue = a[i].second;
 
         if (attributeName == "points")
         {
@@ -484,5 +520,95 @@ void PolygonSVG::setPolygon(vector<pair<string, string>>a)
     {
         this->strokeWidth = 0;
         this->strokeOpacity = 0;
+    }
+}
+vector<pair<char, vector<Points>>> parsePath(string pathData)
+{
+    for (int i = 1; i < pathData.size(); i++)
+    {
+        if (pathData[i] == ' ') continue;
+        else if (pathData[i] == ',') pathData[i] = ' ', i++;
+        else if (!isdigit(pathData[i]) && pathData[i] != '.') pathData.insert(i, " "), i++;
+        else if (isdigit(pathData[i]) && !isdigit(pathData[i - 1]) && pathData[i - 1] != '-' && pathData[i - 1] != '.') pathData.insert(i, " "), i++;
+    }
+    cout << endl;
+    cout << pathData << endl;
+    stringstream ss(pathData);
+    vector<pair<char, vector<Points>>> commands;
+
+    char command = '\0';
+    vector<Points> points;
+
+    while (ss >> command)
+    {
+        points.clear();
+        switch (command)
+        {
+        case 'M':
+        case 'm':
+        case 'L':
+        case 'l':
+        case 'C':
+        case 'c':
+        {
+            float x, y;
+            char c;
+            while (ss >> c)
+            {
+                cout << c << " ";
+                if (c != '-' && !isdigit(c))
+                {
+                    ss.unget();
+                    break;
+                }
+                ss.unget();
+                ss >> x >> y;
+                cout << x << " " << y << endl;
+                points.push_back({ x, y });
+            }
+            commands.push_back({ command, points });
+            break;
+        }
+        case 'H':
+        case 'h':
+        {
+            float x;
+            ss >> x;
+            points.push_back({ x, 0 });
+            commands.push_back({ command, points });
+            break;
+        }
+        case 'V':
+        case 'v':
+        {
+            float y;
+            ss >> y;
+            points.push_back({ 0, y });
+            commands.push_back({ command, points });
+            break;
+        }
+        case 'Z':
+        {
+            commands.push_back({ command,points });
+            break;
+        }
+        }
+    }
+
+    return commands;
+}
+
+void PathSVG::setPath(vector<pair<string, string>>a)
+{
+    for (int i = 0; i < a.size(); i++)
+    {
+        const string& attributeName = a[i].first;
+        string attributeValue = a[i].second;
+
+        if (attributeName == "d")
+        {
+            this->dData = parsePath(attributeValue);
+        }
+        else (*this).setShape(attributeName, attributeValue);
     }
 }
