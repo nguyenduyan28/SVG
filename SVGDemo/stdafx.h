@@ -7,7 +7,7 @@
 
 #include "targetver.h"
 
-#define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
+#define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers
 // Windows Header Files:
 #include <windows.h>
 #include <iostream>
@@ -27,11 +27,12 @@
 using namespace std;
 using namespace rapidxml;
 using namespace Gdiplus;
-#pragma comment (lib,"Gdiplus.lib")
+#pragma comment(lib, "Gdiplus.lib")
 // TODO: reference additional headers your program requires here
-struct RGB {
+struct RGB
+{
     unsigned char r, g, b;
-    RGB& operator=(const RGB& other)
+    RGB &operator=(const RGB &other)
     {
         if (this != &other)
         {
@@ -43,14 +44,16 @@ struct RGB {
     }
 };
 
-struct Points {
+struct Points
+{
     float x, y;
 };
 
-void setProperties(char* nodeName, vector<pair<string, string>> a, Graphics& graphics);
-void DrawSVGFile(string& filename, HDC hdc);
+void setProperties(char *nodeName, vector<pair<string, string>> a, Graphics &graphics);
+void DrawSVGFile(string &filename, HDC hdc);
 
-class Shape {
+class Shape
+{
 protected:
     RGB fill;
     double fillOpacity;
@@ -62,15 +65,16 @@ protected:
     double rotate;
     Points scale;
 
-
 public:
     Shape();
-    virtual void drawShape();
-    void setShape(const string& a, string& b);
-
+    virtual void drawShape(Graphics &graphics);
+    void setShape(const string &a, string &b);
+    virtual void setBesides(vector<pair<string, string>> a);
 };
-vector<Points> parsePoints(const string& p);
-class RectangleSVG : public Shape {
+vector<Points> parsePoints(const string &p);
+
+class RectangleSVG : public Shape
+{
 private:
     Points point;
     int width;
@@ -78,11 +82,12 @@ private:
 
 public:
     RectangleSVG();
-    void drawRectangleSVG(Graphics& graphics);
-    void setRect(vector<pair<string, string>>& a);
+    void drawShape(Graphics &graphics) override;
+    void setBesides(vector<pair<string, string>> a) override;
 };
 
-class TextSVG : public Shape {
+class TextSVG : public Shape
+{
 private:
     Points point;
     int fontSize;
@@ -90,70 +95,77 @@ private:
 
 public:
     TextSVG();
-    void drawTextSVG(Graphics& graphics);
-    void setText(vector<pair<string, string>>a);
+    void drawShape(Graphics &graphics) override;
+    void setBesides(vector<pair<string, string>> a) override;
 };
 
-class CircleSVG : public Shape {
+class CircleSVG : public Shape
+{
 private:
     Points point;
     double radius;
 
 public:
     CircleSVG();
-    void drawCircleSVG(Graphics& graphics);
-    void setCircle(vector<pair<string, string>>a);
+    void drawShape(Graphics &graphics) override;
+    void setBesides(vector<pair<string, string>> a) override;
 };
 
-class PolylineSVG : public Shape {
+class PolylineSVG : public Shape
+{
 private:
     vector<Points> points;
 
 public:
     PolylineSVG();
-    void drawPolylineSVG(Graphics& graphics);
-    void setPolyline(vector<pair<string, string>>a);
-
+    void drawShape(Graphics &graphics) override;
+    void setBesides(vector<pair<string, string>> a) override;
 };
 
-class EllipseSVG : public Shape {
+class EllipseSVG : public Shape
+{
 private:
     Points c;
     float radiusX, radiusY;
 
 public:
     EllipseSVG();
-    void drawEllipseSVG(Graphics& graphics);
-    void setEllipse(vector<pair<string, string>>a);
+    void drawShape(Graphics &graphics) override;
+    void setBesides(vector<pair<string, string>> a) override;
 };
 
-class LineSVG : public Shape {
+class LineSVG : public Shape
+{
 private:
     Points from, to;
 
 public:
     LineSVG();
-    void drawLineSVG(Graphics& graphics);
-    void setLine(vector<pair<string, string>>a);
+    void drawShape(Graphics &graphics) override;
+    void setBesides(vector<pair<string, string>> a) override;
 };
 
-class PolygonSVG : public Shape {
+class PolygonSVG : public Shape
+{
 private:
     vector<Points> points;
+
 public:
     PolygonSVG();
-    void drawPolygonSVG(Graphics& graphics);
-    void setPolygon(vector<pair<string, string>>a);
+    void drawShape(Graphics &graphics) override;
+    void setBesides(vector<pair<string, string>> a) override;
 };
 
-class PathSVG : public Shape {
+class PathSVG : public Shape
+{
 private:
     Points startPoint;
     Points curPoint;
-    vector <pair <char, vector<Points>>> dData;
+    vector<pair<char, vector<Points>>> dData;
+
 public:
     PathSVG();
     void updatePoint(Points newPoint);
-    void drawPathSVG(Graphics& graphics);
-    void setPath(vector<pair<string, string>>a);
+    void drawShape(Graphics &graphics);
+    void setBesides(vector<pair<string, string>> a);
 };
