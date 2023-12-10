@@ -646,7 +646,7 @@ vector<pair<char, vector<Points>>> parsePath(string pathData)
             commands.push_back({command, points});
             break;
         }
-        case 'Z':
+        case 'Z': case 'z':
         {
             commands.push_back({command, points});
             break;
