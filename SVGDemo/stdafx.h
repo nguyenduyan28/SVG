@@ -169,3 +169,9 @@ public:
     void drawShape(Graphics &graphics);
     void setBesides(vector<pair<string, string>> a);
 };
+class SVGElement {
+public:
+    void setGroup(vector<pair<string, string>>& attributes);
+    void processAttributes(xml_node<>* node);
+};
+void processGroupNode(xml_node<>* groupNode);
