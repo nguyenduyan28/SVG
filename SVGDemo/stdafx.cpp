@@ -797,3 +797,63 @@ void PathSVG::drawShape(Graphics &graphics)
     graphics.FillPath(&brush, &myPath);
     graphics.EndContainer(container);
 }
+
+void SVGElement::setGroup(vector<pair<string, string>>& attributes) {
+    for (int i = 0; i < attributes.size(); i++) {
+        const string& attributeName = attributes[i].first;
+        const string& attributeValue = attributes[i].second;
+
+       // cout << attributeName << ": " << attributeValue << endl;
+    }
+}
+
+void SVGElement::processAttributes(xml_node<>* node) {
+    vector<pair<string, string>> attributes;
+    for (xml_attribute<>* attr = node->first_attribute(); attr; attr = attr->next_attribute()) {
+        attributes.push_back(make_pair(attr->name(), attr->value()));
+    }
+    setGroup(attributes);
+}
+void processGroupNode(xml_node<>* groupNode) {
+    SVGElement svgElement;
+    svgElement.processAttributes(groupNode);
+
+    for (xml_node<>* childNode = groupNode->first_node(); childNode; childNode = childNode->next_sibling()) {
+        if (childNode->type() == rapidxml::node_element) {
+            string elementName = childNode->name();
+            //cout << "Unhandled element: " << elementName << endl;
+
+            if (elementName == "g") {
+                processGroupNode(childNode);
+            }
+            else if (elementName == "rect") {
+                SVGElement rect;
+                rect.processAttributes(childNode);
+            }
+            else if (elementName == "text") {
+                SVGElement text;
+                text.processAttributes(childNode);
+            }
+            else if (elementName == "circle") {
+                SVGElement circle;
+                circle.processAttributes(childNode);
+            }
+            else if (elementName == "line") {
+                SVGElement line;
+                line.processAttributes(childNode);
+            }
+            else if (elementName == "polygon") {
+                SVGElement polygon;
+                polygon.processAttributes(childNode);
+            }
+            else if (elementName == "ellipse") {
+                SVGElement ellipse;
+                ellipse.processAttributes(childNode);
+            }
+            else if (elementName == "polyline") {
+                SVGElement polyline;
+                polyline.processAttributes(childNode);
+            }
+        }
+    }
+}
