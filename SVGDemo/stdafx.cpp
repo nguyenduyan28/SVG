@@ -21,7 +21,9 @@ Shape::Shape()
     this->scale = Points({0.0, 0.0});
 }
 
-void Shape::drawShape(Graphics &graphics) {}
+void Shape::drawShape(Graphics &graphics) {
+
+}
 
 void Shape::setBesides(vector<pair<string, string>> a) {}
 
@@ -33,20 +35,25 @@ RectangleSVG::RectangleSVG()
 }
 
 void RectangleSVG::drawShape(Graphics &graphics)
-{
-    graphics.SetPixelOffsetMode(PixelOffsetModeHighQuality);
-    graphics.SetSmoothingMode(SmoothingModeAntiAlias);
+{   
+    
+    
     unsigned char fillalpha, strokealpha;
     fillalpha = opacity2alpha(fillOpacity);
     strokealpha = opacity2alpha(strokeOpacity);
+    GraphicsContainer container = graphics.BeginContainer();
+
     graphics.TranslateTransform(translate.x, translate.y);
     graphics.ScaleTransform(scale.x, scale.y);
     graphics.RotateTransform(rotate);
+    graphics.SetPixelOffsetMode(PixelOffsetModeHighQuality);
+    graphics.SetSmoothingMode(SmoothingModeAntiAlias);
     Pen pen(Color(strokealpha, stroke.r, stroke.b, stroke.g), strokeWidth);
     Rect rect(point.x, point.y, width, height);
     graphics.DrawRectangle(&pen, rect);
     SolidBrush brush(Color(fillalpha, fill.r, fill.g, fill.b));
     graphics.FillRectangle(&brush, rect);
+    graphics.EndContainer(container);
 }
 
 TextSVG::TextSVG()
@@ -58,18 +65,18 @@ TextSVG::TextSVG()
 
 void TextSVG::drawShape(Graphics &graphics)
 {
-    graphics.SetPixelOffsetMode(PixelOffsetModeHighQuality);
-    graphics.SetSmoothingMode(SmoothingModeAntiAlias);
+    
     unsigned char fillalpha, strokealpha;
     fillalpha = opacity2alpha(fillOpacity);
     strokealpha = opacity2alpha(strokeOpacity);
-    FontFamily fontFamily(L"Times New Roman");
+    FontFamily fontFamily(this -> fontFamily);
     Font font(&fontFamily, fontSize, FontStyleRegular, UnitPixel);
     PointF pointF(point.x - fontSize, point.y - fontSize);
 
     wstring infostr = wstring(info.begin(), info.end());
     const WCHAR *infocstr = infostr.c_str();
     GraphicsContainer container = graphics.BeginContainer();
+    graphics.SetTextRenderingHint(TextRenderingHintAntiAlias);
     graphics.TranslateTransform(translate.x, translate.y);
     graphics.ScaleTransform(scale.x, scale.y);
     graphics.RotateTransform(rotate);
@@ -107,12 +114,13 @@ CircleSVG::CircleSVG()
 
 void CircleSVG::drawShape(Graphics &graphics)
 {
-    graphics.SetPixelOffsetMode(PixelOffsetModeHighQuality);
-    graphics.SetSmoothingMode(SmoothingModeAntiAlias);
+    
     unsigned char fillalpha, strokealpha;
     fillalpha = opacity2alpha(fillOpacity);
     strokealpha = opacity2alpha(strokeOpacity);
     GraphicsContainer container = graphics.BeginContainer();
+    graphics.SetPixelOffsetMode(PixelOffsetModeHighQuality);
+    graphics.SetSmoothingMode(SmoothingModeAntiAlias);
     graphics.TranslateTransform(translate.x, translate.y);
     graphics.ScaleTransform(scale.x, scale.y);
     graphics.RotateTransform(rotate);
@@ -131,8 +139,7 @@ PolylineSVG::PolylineSVG()
 
 void PolylineSVG::drawShape(Graphics &graphics)
 {
-    graphics.SetPixelOffsetMode(PixelOffsetModeHighQuality);
-    graphics.SetSmoothingMode(SmoothingModeAntiAlias);
+    
     unsigned char fillalpha, strokealpha;
     fillalpha = opacity2alpha(fillOpacity);
     strokealpha = opacity2alpha(strokeOpacity);
@@ -147,6 +154,8 @@ void PolylineSVG::drawShape(Graphics &graphics)
     graphics.ScaleTransform(scale.x, scale.y);
     graphics.RotateTransform(rotate);
     GraphicsContainer container = graphics.BeginContainer();
+    graphics.SetPixelOffsetMode(PixelOffsetModeHighQuality);
+    graphics.SetSmoothingMode(SmoothingModeAntiAlias);
     SolidBrush brush(Color(fillalpha, fill.r, fill.g, fill.b));
     graphics.FillPolygon(&brush, p, newP.size());
     if (strokeWidth)
@@ -162,8 +171,7 @@ EllipseSVG::EllipseSVG()
 
 void EllipseSVG::drawShape(Graphics &graphics)
 {
-    graphics.SetPixelOffsetMode(PixelOffsetModeHighQuality);
-    graphics.SetSmoothingMode(SmoothingModeAntiAlias);
+    
     unsigned char fillalpha, strokealpha;
     fillalpha = opacity2alpha(fillOpacity);
     strokealpha = opacity2alpha(strokeOpacity);
@@ -171,6 +179,8 @@ void EllipseSVG::drawShape(Graphics &graphics)
     Rect rect(c.x - radiusX, c.y - radiusY, radiusX * 2, radiusY * 2);
     SolidBrush brush(Color(fillalpha, fill.r, fill.g, fill.b));
     GraphicsContainer container = graphics.BeginContainer();
+    graphics.SetPixelOffsetMode(PixelOffsetModeHighQuality);
+    graphics.SetSmoothingMode(SmoothingModeAntiAlias);
     graphics.TranslateTransform(translate.x, translate.y);
     graphics.ScaleTransform(scale.x, scale.y);
     graphics.RotateTransform(rotate);
@@ -263,7 +273,68 @@ void setProperties(char *nodeName, vector<pair<string, string>> a, Graphics &gra
     }
 }
 
-RGB parseRGB(const string &s)
+void SVGElement::setGroup(vector<pair<string, string>>& attributes) {
+    for (int i = 0; i < attributes.size(); i++) {
+        const string& attributeName = attributes[i].first;
+        const string& attributeValue = attributes[i].second;
+
+        // cout << attributeName << ": " << attributeValue << endl;
+    }
+}
+
+void SVGElement::processAttributes(xml_node<>* node) {
+    vector<pair<string, string>> attributes;
+    for (xml_attribute<>* attr = node->first_attribute(); attr; attr = attr->next_attribute()) {
+        attributes.push_back(make_pair(attr->name(), attr->value()));
+    }
+    setGroup(attributes);
+}
+void processGroupNode(xml_node<>* groupNode) {
+    SVGElement svgElement;
+    svgElement.processAttributes(groupNode);
+
+    for (xml_node<>* childNode = groupNode->first_node(); childNode; childNode = childNode->next_sibling()) {
+        if (childNode->type() == rapidxml::node_element) {
+            string elementName = childNode->name();
+            //cout << "Unhandled element: " << elementName << endl;
+
+            if (elementName == "g") {
+                processGroupNode(childNode);
+            }
+            else if (elementName == "rect") {
+                SVGElement rect;
+                rect.processAttributes(childNode);
+            }
+            else if (elementName == "text") {
+                SVGElement text;
+                text.processAttributes(childNode);
+            }
+            else if (elementName == "circle") {
+                SVGElement circle;
+                circle.processAttributes(childNode);
+            }
+            else if (elementName == "line") {
+                SVGElement line;
+                line.processAttributes(childNode);
+            }
+            else if (elementName == "polygon") {
+                SVGElement polygon;
+                polygon.processAttributes(childNode);
+            }
+            else if (elementName == "ellipse") {
+                SVGElement ellipse;
+                ellipse.processAttributes(childNode);
+               
+            }
+            else if (elementName == "polyline") {
+                SVGElement polyline;
+                polyline.processAttributes(childNode);
+            }
+        }
+    }
+}
+
+RGB parseRGB(const string &s) // rgb()
 {
     RGB c;
     string values = s.substr(4, s.size() - 5);
@@ -341,14 +412,12 @@ void Shape::setShape(const string &attributeName, string &attributeValue)
                 }
                 else
                 {
-                    p.y = p.x;
+                    if (transformType == "scale") p.y = p.x;
+                    else ss >> p.y;
                 }
-                if (token == "rotate")
-                    this->rotate = p.x;
-                else if (token == "translate")
-                    this->translate.x = p.x, this->translate.y = p.y;
-                else
-                    this->scale.x = p.x, this->scale.y = p.y;
+                if (token == "rotate") this->rotate = p.x;
+                else if (token == "translate") this->translate.x = p.x, this->translate.y = p.y;
+                else this->scale.x = p.x, this->scale.y = p.y;
             }
         }
     }
@@ -444,21 +513,40 @@ void CircleSVG::setBesides(vector<pair<string, string>> a)
         this->strokeOpacity = 0;
     }
 }
+//
+//vector<Points> parsePoints(const string &a)
+//{
+//    vector<Points> points;
+//    stringstream ss(a);
+//
+//    while (!ss.eof())
+//    {
+//        Points p;
+//        char comma;
+//        ss >> p.x >> comma >> p.y;
+//        points.push_back(p);
+//    }
+//    return points;
+//}
 
-vector<Points> parsePoints(const string &a)
+vector<Points> parsePoints(const string& a)
 {
     vector<Points> points;
     stringstream ss(a);
 
-    while (!ss.eof())
-    {
+    while (!ss.eof()) {
         Points p;
         char comma;
-        ss >> p.x >> comma >> p.y;
+        ss >> p.x;
+        ss >> comma;
+        if (isdigit(comma)) ss.unget();
+        ss >> p.y;
+        //>> comma >> p.y;
         points.push_back(p);
     }
     return points;
 }
+
 
 void PolylineSVG::setBesides(vector<pair<string, string>> a)
 {
@@ -516,8 +604,8 @@ void LineSVG::setBesides(vector<pair<string, string>> a)
 {
     for (int i = 0; i < a.size(); i++)
     {
-        const string &attributeName = a[i].first;
-        const string &attributeValue = a[i].second;
+        const string& attributeName = a[i].first;
+        string& attributeValue = a[i].second;
         if (attributeName == "x1")
         {
             this->from.x = stoi(attributeValue);
@@ -534,21 +622,9 @@ void LineSVG::setBesides(vector<pair<string, string>> a)
         {
             this->to.y = stoi(attributeValue);
         }
-        else if (attributeName == "stroke")
-        {
-            this->hasStroke = true;
-            this->stroke = parseRGB(attributeValue);
-        }
-        else if (attributeName == "stroke-width")
-        {
-            this->hasStroke = true;
-            this->strokeWidth = stoi(attributeValue);
-        }
-        else if (attributeName == "stroke-opacity")
-        {
-            this->hasStroke = true;
-            this->strokeOpacity = stod(attributeValue);
-        }
+        else
+            (*this).setShape(attributeName, attributeValue);
+
     }
     if (this->hasStroke == false)
     {
@@ -834,64 +910,4 @@ void PathSVG::drawShape(Graphics &graphics)
     }
     graphics.FillPath(&brush, &myPath);
     graphics.EndContainer(container);
-}
-
-void SVGElement::setGroup(vector<pair<string, string>>& attributes) {
-    for (int i = 0; i < attributes.size(); i++) {
-        const string& attributeName = attributes[i].first;
-        const string& attributeValue = attributes[i].second;
-
-       // cout << attributeName << ": " << attributeValue << endl;
-    }
-}
-
-void SVGElement::processAttributes(xml_node<>* node) {
-    vector<pair<string, string>> attributes;
-    for (xml_attribute<>* attr = node->first_attribute(); attr; attr = attr->next_attribute()) {
-        attributes.push_back(make_pair(attr->name(), attr->value()));
-    }
-    setGroup(attributes);
-}
-void processGroupNode(xml_node<>* groupNode) {
-    SVGElement svgElement;
-    svgElement.processAttributes(groupNode);
-
-    for (xml_node<>* childNode = groupNode->first_node(); childNode; childNode = childNode->next_sibling()) {
-        if (childNode->type() == rapidxml::node_element) {
-            string elementName = childNode->name();
-            //cout << "Unhandled element: " << elementName << endl;
-
-            if (elementName == "g") {
-                processGroupNode(childNode);
-            }
-            else if (elementName == "rect") {
-                SVGElement rect;
-                rect.processAttributes(childNode);
-            }
-            else if (elementName == "text") {
-                SVGElement text;
-                text.processAttributes(childNode);
-            }
-            else if (elementName == "circle") {
-                SVGElement circle;
-                circle.processAttributes(childNode);
-            }
-            else if (elementName == "line") {
-                SVGElement line;
-                line.processAttributes(childNode);
-            }
-            else if (elementName == "polygon") {
-                SVGElement polygon;
-                polygon.processAttributes(childNode);
-            }
-            else if (elementName == "ellipse") {
-                SVGElement ellipse;
-                ellipse.processAttributes(childNode);
-            }
-            else if (elementName == "polyline") {
-                SVGElement polyline;
-                polyline.processAttributes(childNode);
-            }
-        }
-    }
 }
