@@ -219,7 +219,7 @@ protected:
 public:
     Shape();
     virtual void drawShape(Graphics& graphics);
-    void setShape(const string& a, string& b, bool fo, bool f, bool s, bool sw, bool so);
+    void setShape(const string& a, string& b, bool& fo, bool& f, bool& s, bool& sw, bool& so);
     virtual void setBesides(vector<pair<string, string>> a);
 };
 vector<Points> parsePoints(const string& p);
