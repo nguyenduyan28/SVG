@@ -192,6 +192,7 @@ std::map<std::string, std::string> colorMap = {
     {"snow", "rgb(255,250,250)"},
     {"dimgray", "rgb(105,105,105)"},
     {"gray", "rgb(128,128,128)"},
+    { "grey", "rgb(128,128,128)" },
     {"darkgray", "rgb(169,169,169)"},
     {"silver", "rgb(192,192,192)"},
     {"lightgray", "rgb(211,211,211)"},

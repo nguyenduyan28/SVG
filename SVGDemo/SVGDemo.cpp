@@ -162,7 +162,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
         }
         else {
             // Default SVG file name if not provided in command line
-            svgFilename = L"sample.svg";
+            svgFilename = L"svg-07.svg";
         }
 
         DrawSVGFile(svgFilename, hdc);
