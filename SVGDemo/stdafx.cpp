@@ -42,19 +42,19 @@ void processHex(string& s) {
     int r, g, b;
     int size = s.size() - 1;
     if (size == 3) {
-        s = s.substr(1, 3);
         string s1 = s;
         string s2 = s;
         s.clear();
         s.push_back('#');
-        for (int i = 1; i < s1.size() + s2.size(); i++){
-            s.push_back(s1[i]);
-            s.push_back(s2[i]);
+        for (int i = 0; i < s1.size() - 1; i++){
+            s.push_back(s1[i + 1]);
+            s.push_back(s2[i + 1]);
         }
     }
-    r = hex2dec(s.substr(1, size / 3));
-    g = hex2dec(s.substr(1 + size / 3, size / 3));
-    b = hex2dec(s.substr(1 + size / 3 + size / 3, size / 3));
+    size = s.size() - 1;
+    r = hex2dec(s.substr(1, 2));
+    g = hex2dec(s.substr(3, 2));
+    b = hex2dec(s.substr(5, 2));
     ostringstream ss;
     ss << "rgb(" << r << ", " << g << ", " << b << ")";
     s = ss.str();
@@ -149,6 +149,8 @@ void TextSVG::drawShape(Graphics& graphics)
     const WCHAR* infocstr = infostr.c_str();
     GraphicsContainer container = graphics.BeginContainer();
     graphics.SetTextRenderingHint(TextRenderingHintAntiAlias);
+    graphics.SetPixelOffsetMode(PixelOffsetModeHighQuality);
+    graphics.SetSmoothingMode(SmoothingModeAntiAlias);
     graphics.TranslateTransform(translate.x, translate.y);
     graphics.ScaleTransform(scale.x, scale.y);
     graphics.RotateTransform(rotate);
@@ -156,10 +158,9 @@ void TextSVG::drawShape(Graphics& graphics)
     GraphicsPath myPath;
     myPath.AddString(infocstr, -1, &fontFamily, FontStyleRegular, fontSize, pointF, NULL);
     Pen pen(Color(strokealpha, stroke.r, stroke.g, stroke.b), strokeWidth);
-    
     SolidBrush solidBrush(Color(fillalpha, fill.r, fill.g, fill.b));
-    graphics.DrawString(infocstr, -1, &font, pointF, &solidBrush);
     graphics.DrawPath(&pen, &myPath);
+    graphics.DrawString(infocstr, -1, &font, pointF, &solidBrush);
     graphics.EndContainer(container);
 
 }
@@ -386,12 +387,12 @@ void Shape::setShape(const string& attributeName, string& attributeValue, bool f
     if (attributeName == "fill-opacity")
     {
         if (fo == 0)
-            this->fillOpacity = stod(attributeValue);
+            this->fillOpacity = stod(attributeValue), fo = 1;
     }
     else if (attributeName == "fill")
     {
         if (f == 0)
-            this->fill = parseRGB(attributeValue);
+            this->fill = parseRGB(attributeValue), f = 1;
     }
     else if (attributeName == "stroke")
     {
@@ -399,6 +400,7 @@ void Shape::setShape(const string& attributeName, string& attributeValue, bool f
         {
             this->hasStroke = true;
             this->stroke = parseRGB(attributeValue);
+            s = 1;
         }
 
     }
@@ -408,6 +410,7 @@ void Shape::setShape(const string& attributeName, string& attributeValue, bool f
         {
             this->hasStroke = true;
             this->strokeWidth = stoi(attributeValue);
+            sw = 1;
         }
 
     }
@@ -415,6 +418,7 @@ void Shape::setShape(const string& attributeName, string& attributeValue, bool f
     {
         if (so == 0)
         {
+            so = 1;
             this->hasStroke = true;
             this->strokeOpacity = stod(attributeValue);
         }
@@ -456,6 +460,7 @@ void Shape::setShape(const string& attributeName, string& attributeValue, bool f
         }
     }
 }
+
 void RectangleSVG::setBesides(vector<pair<string, string>> a)
 {
     bool fo = 0, f = 0, so = 0, sw = 0, s = 0;
@@ -512,6 +517,14 @@ void TextSVG::setBesides(vector<pair<string, string>> a)
         {
             this->info = string(attributeValue);
         }
+        else if (attributeName == "dx")
+        {
+            this->dx = stoi(attributeValue);
+        }
+        else if (attributeName == "dy")
+        {
+            this->dy = stoi(attributeValue);
+        }
         else
             (*this).setShape(attributeName, attributeValue, fo, f, s, sw, so);
     }
@@ -520,6 +533,7 @@ void TextSVG::setBesides(vector<pair<string, string>> a)
         this->strokeWidth = 0;
         this->strokeOpacity = 0;
     }
+
 }
 
 void CircleSVG::setBesides(vector<pair<string, string>> a)
