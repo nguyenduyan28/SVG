@@ -2,13 +2,74 @@
 
 
 
+void applyAttributesToChildren(xml_node<>* parentNode, vector<pair<string, string>>& attributes) {
+    // Apply attributes to all child nodes within <g>
+    xml_node<>* childNode = parentNode->first_node();
+    while (childNode) {
+        for (auto& attribute : attributes) {
+            childNode->append_attribute(childNode->document()->allocate_attribute(
+                childNode->document()->allocate_string(attribute.first.c_str()),
+                childNode->document()->allocate_string(attribute.second.c_str())
+            ));
+        }
+        /*if (strcmp(childNode->name(), "g") == 0) {
+            // Recursively read children
+            applyAttributesToChildren(childNode, attributes);
+        }*/
+        childNode = childNode->next_sibling();
+    }
+}
+
+void read(xml_node<>* node, vector<pair<string, string>>& gAttributes, Graphics& graphics) 
+{
+    while (node) {
+        char* nodeName = node->name();
+        cout << nodeName << " - ";
+
+        xml_attribute<>* currentAttribute = node->first_attribute();
+
+        vector<pair<string, string>> a;
+        gAttributes.clear();
+        while (currentAttribute != NULL)
+        {
+            char* attributeName = currentAttribute->name();
+            char* attributeValue = currentAttribute->value();
+
+            a.push_back({ attributeName, attributeValue });
+            cout << "Attribute Name: " << attributeName << ", Attribute Value: " << attributeValue << endl;
+
+            if (strcmp(nodeName, "g") == 0)
+            {
+                gAttributes.push_back({ attributeName, attributeValue }); // Store attributes of <g>
+            }
+
+            currentAttribute = currentAttribute->next_attribute();
+        }
+
+        if (strcmp(nodeName, "text") == 0) {
+            a.push_back({ "text", node->value() });
+        }
+        for (int i = 0; i < a.size(); i++)
+        {
+            cout << a[i].first << " " << a[i].second << endl;
+        }
+        setProperties(nodeName, a, graphics);
+        if (strcmp(nodeName, "g") == 0) {
+            // If the node is <g>, apply its attributes to its children
+            applyAttributesToChildren(node, gAttributes);
+            read(node->first_node(), gAttributes, graphics);
+        }
+
+        node = node->next_sibling();
+    }
+}
 
 void DrawSVGFile(string& filename, HDC hdc) {
     Graphics graphics(hdc);
 
     xml_document<> doc;
 
-    ifstream file("sample.svg");
+    ifstream file("svg-15.svg");
     vector<char> buffer((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 
     buffer.push_back('\0');
@@ -17,32 +78,8 @@ void DrawSVGFile(string& filename, HDC hdc) {
     xml_node<>* rootNode = doc.first_node();
     xml_node<>* node = rootNode->first_node();
 
-    while (node)
-    {
-        char* nodeName = node->name();
-        //cout << nodeName << " - ";
-
-        xml_attribute<>* currentAttribute = node->first_attribute();
-
-        vector<pair<string, string>>a;
-        while (currentAttribute != NULL)
-        {
-            char* attributeName = currentAttribute->name();
-            char* attributeValue = currentAttribute->value();
-
-            a.push_back({ attributeName, attributeValue });
-            //std::cout << "Attribute Name: " << attributeName << ", Attribute Value: " << attributeValue << std::endl;
-            currentAttribute = currentAttribute->next_attribute();
-        }
-        if (strcmp(nodeName, "text") == 0)
-        {
-            a.push_back({ "text", node->value() });
-            //cout << node->value() << endl; 
-        }
-        setProperties(nodeName, a, graphics);
-
-        node = node->next_sibling();
-    }
+    vector<pair<string, string>> gAttributes;
+    read(node, gAttributes, graphics);
 
 }
 
