@@ -700,7 +700,7 @@ void PathSVG::drawShape(Graphics &graphics)
         char nameCommand = dData[i].first;
         vector<Points> data = dData[i].second;
         if (i == 0)
-        {
+        {   
             startPoint = data[0];
             curPoint = data[0];
             if (nameCommand == 'M' || nameCommand == 'm')
@@ -721,8 +721,8 @@ void PathSVG::drawShape(Graphics &graphics)
         }
         else
         {
-            if (nameCommand == 'M')
-            {
+            if (nameCommand == 'M'){
+            
                 if (data.size() > 1)
                 {
                     myPath.AddLine(Point{int(curPoint.x), int(curPoint.y)}, Point{int(data[0].x), int(data[0].y)});
@@ -742,58 +742,96 @@ void PathSVG::drawShape(Graphics &graphics)
             }
             else if (nameCommand == 'm')
             {
-                updatePoint(Points{data[0].x + curPoint.x, data[0].x + curPoint.y});
+                if (data.size() > 1)
+                {
+                    myPath.AddLine(Point{ int(curPoint.x), int(curPoint.y) }, Point{ int(data[0].x + curPoint.x), int(data[0].y + curPoint.y) });
+                    updatePoint(data[0]);
+                    
+                    for (int i = 1; i < data.size(); i++)
+                    {
+                        myPath.AddLine(Point{ int(curPoint.x), int(curPoint.y) }, Point{ int(data[i].x + curPoint.x), int(data[i].y + curPoint.y) });
+                        updatePoint(data[i]);
+                    }
+                    startPoint = { curPoint.x + data[data.size() - 1].x , curPoint.y + data[data.size() - 1].y };
+                }
+                else
+                {
+                    
+                    startPoint = { curPoint.x + data[0].x, curPoint.y + data[0].y };
+                    updatePoint(Points{ curPoint.x + data[0].x, curPoint.y + data[0].y });
+                }
+
             }
             else if (nameCommand == 'L')
             {
-                myPath.AddLine(Point{int(curPoint.x), int(curPoint.y)}, Point{int(data[0].x), int(data[0].y)});
-                updatePoint(data[0]);
+                for (int i = 0; i < data.size(); i++) {
+                    myPath.AddLine(Point{ int(curPoint.x), int(curPoint.y) }, Point{ int(data[i].x), int(data[i].y) });
+                    updatePoint(data[i]);
+                }
             }
             else if (nameCommand == 'l')
             {
-                myPath.AddLine(Point{int(curPoint.x), int(curPoint.y)}, Point{int(curPoint.x + data[0].x), int(curPoint.y + data[0].y)});
-                updatePoint(Points{curPoint.x + data[0].x, curPoint.y + data[0].y});
+                for (int i = 0; i < data.size(); i++) {
+                    myPath.AddLine(Point{ int(curPoint.x), int(curPoint.y) }, Point{ int(curPoint.x + data[i].x), int(curPoint.y + data[i].y) });
+                    updatePoint(Points{ curPoint.x + data[i].x, curPoint.y + data[i].y });
+                }
+                
             }
             else if (nameCommand == 'H')
             {
-                myPath.AddLine(Point{int(curPoint.x), int(curPoint.y)}, Point{int(data[0].x), int(curPoint.y)});
-                updatePoint(Points{data[0].x, curPoint.y});
+                for (int i = 0; i < data.size(); i++) {
+                    myPath.AddLine(Point{ int(curPoint.x), int(curPoint.y) }, Point{ int(data[i].x), int(curPoint.y) });
+                    updatePoint(Points{ data[i].x, curPoint.y });
+                }
             }
             else if (nameCommand == 'h')
             {
-                myPath.AddLine(Point{int(curPoint.x), int(curPoint.y)}, Point{int(curPoint.x + data[0].x), int(curPoint.y)});
-                updatePoint(Points{data[0].x + curPoint.x, curPoint.y});
+                for (int i = 0; i < data.size(); i++){
+                    myPath.AddLine(Point{ int(curPoint.x), int(curPoint.y) }, Point{ int(curPoint.x + data[i].x), int(curPoint.y) });
+                    updatePoint(Points{ data[i].x + curPoint.x, curPoint.y });
+                }
             }
             else if (nameCommand == 'V')
             {
-                myPath.AddLine(Point{int(curPoint.x), int(curPoint.y)}, Point{int(curPoint.x), int(data[0].y)});
-                updatePoint(Points{curPoint.x, data[0].y});
+                for (int i = 0; i < data.size(); i++) {
+                    myPath.AddLine(Point{ int(curPoint.x), int(curPoint.y) }, Point{ int(curPoint.x), int(data[i].y) });
+                    updatePoint(Points{ curPoint.x, data[i].y });
+                }
             }
             else if (nameCommand == 'v')
             {
-                myPath.AddLine(Point{int(curPoint.x), int(curPoint.y)}, Point{int(curPoint.x), int(data[0].y + curPoint.y)});
-                updatePoint(Points{curPoint.x, data[0].y + curPoint.y});
+                for (int i = 0; i < data.size(); i++) {
+                    myPath.AddLine(Point{ int(curPoint.x), int(curPoint.y) }, Point{ int(curPoint.x), int(data[i].y + curPoint.y) });
+                    updatePoint(Points{ curPoint.x, data[i].y + curPoint.y });
+                }
             }
             else if (nameCommand == 'C')
             {
-                myPath.AddBezier(Point{int(curPoint.x), int(curPoint.y)}, Point{int(data[0].x), int(data[0].y)}, Point{int(data[1].x), int(data[1].y)}, Point{int(data[2].x), int(data[2].y)});
-                updatePoint(Points{data[2].x, data[2].y});
+                for (int i = 0; i < data.size(); i = i + 3) {
+                    myPath.AddBezier(Point{ int(curPoint.x), int(curPoint.y) }, Point{ int(data[i].x), int(data[i].y) }, Point{ int(data[i + 1].x), int(data[i + 1].y) }, Point{ int(data[i + 2].x), int(data[i + 2].y) });
+                    updatePoint(Points{ data[i + 2].x, data[i + 2].y });
+                }
             }
             else if (nameCommand == 'c')
             {
-                myPath.AddBezier(Point{int(curPoint.x), int(curPoint.y)}, Point{int(curPoint.x + data[0].x), int(curPoint.y + data[0].y)}, Point{int(curPoint.x + data[1].x), int(curPoint.y + data[1].y)}, Point{int(curPoint.x + data[2].x), int(curPoint.y + data[2].y)});
-                updatePoint(Points{curPoint.x + data[2].x, curPoint.y + data[2].y});
+                for (int i = 0; i < data.size(); i = i + 3) {
+                    myPath.AddBezier(Point{ int(curPoint.x), int(curPoint.y) }, Point{ int(curPoint.x + data[i].x), int(curPoint.y + data[i].y) }, Point{ int(curPoint.x + data[i + 1].x), int(curPoint.y + data[i + 1].y) }, Point{ int(curPoint.x + data[i + 2].x), int(curPoint.y + data[i + 2].y) });
+                    updatePoint(Points{ curPoint.x + data[i + 2].x, curPoint.y + data[i + 2].y });
+                }
             }
             else if (nameCommand == 'Z' || nameCommand == 'z')
             {
                 myPath.AddLine(Point{int(curPoint.x), int(curPoint.y)}, Point{int(startPoint.x), int(startPoint.y)});
                 updatePoint(startPoint);
+                myPath.CloseFigure();
             }
         }
     }
     graphics.SetPixelOffsetMode(PixelOffsetModeHighQuality);
     graphics.SetSmoothingMode(SmoothingModeAntiAlias);
-    graphics.DrawPath(&pen, &myPath);
+    if (hasStroke) {
+        graphics.DrawPath(&pen, &myPath);
+    }
     graphics.FillPath(&brush, &myPath);
     graphics.EndContainer(container);
 }
