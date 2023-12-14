@@ -8,6 +8,24 @@ unsigned char opacity2alpha(double opacity)
     return static_cast<unsigned char>(opacity * 255.0);
 }
 
+
+void changeRGB(string& s) {
+    if (s.find("rgb") != string::npos) {
+        return;
+    }
+
+    if (s.find("#") != string::npos) {
+        s = hexMap[s];
+    }
+    else {
+        for (int i = 0; i < s.size(); i++) {
+            s[i] = tolower(s[i]);
+        }
+        s = colorMap[s];
+    }
+}
+
+
 Shape::Shape()
 {
     this->fill.r = this->fill.g = this->fill.b = 0;
@@ -334,8 +352,9 @@ void processGroupNode(xml_node<>* groupNode) {
     }
 }
 
-RGB parseRGB(const string &s) // rgb()
+RGB parseRGB(string &s) // rgb()
 {
+    changeRGB(s);
     RGB c;
     string values = s.substr(4, s.size() - 5);
     stringstream ss(values);
@@ -369,6 +388,7 @@ void Shape::setShape(const string &attributeName, string &attributeValue)
     }
     else if (attributeName == "fill")
     {
+       
         this->fill = parseRGB(attributeValue);
     }
     else if (attributeName == "stroke")
