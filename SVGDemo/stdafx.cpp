@@ -8,6 +8,57 @@ unsigned char opacity2alpha(double opacity)
     return static_cast<unsigned char>(opacity * 255.0);
 }
 
+int hex2dec(string hexVal)
+{
+    int len = hexVal.size();
+
+    // Initializing base value to 1, i.e 16^0 
+    int base = 1;
+
+    int dec_val = 0; 
+    for (int i = len - 1; i >= 0; i--) {
+        if (hexVal[i] >= '0' && hexVal[i] <= '9') {
+            dec_val += (int(hexVal[i]) - 48) * base;
+
+            // incrementing base by power 
+            base = base * 16;
+        }
+
+        // if character lies in 'A'-'F' , converting 
+        // it to integral 10 - 15 by subtracting 55 
+        // from ASCII value 
+        else if (hexVal[i] >= 'A' && hexVal[i] <= 'F') {
+            dec_val += (int(hexVal[i]) - 55) * base;
+
+            // incrementing base by power 
+            base = base * 16;
+        }
+    }
+    return dec_val;
+}
+
+
+void processHex(string& s) {
+    int r, g, b;
+    int size = s.size() - 1;
+    if (size == 3) {
+        s = s.substr(1, 3);
+        string s1 = s;
+        string s2 = s;
+        s.clear();
+        s.push_back('#');
+        for (int i = 1; i < s1.size() + s2.size(); i++){
+            s.push_back(s1[i]);
+            s.push_back(s2[i]);
+        }
+    }
+    r = hex2dec(s.substr(1, size / 3));
+    g = hex2dec(s.substr(1 + size / 3, size / 3));
+    b = hex2dec(s.substr(1 + size / 3 + size / 3, size / 3));
+    ostringstream ss;
+    ss << "rgb(" << r << ", " << g << ", " << b << ")";
+    s = ss.str();
+}
 
 void changeRGB(string& s) {
     if (s.find("rgb") != string::npos) {
@@ -15,7 +66,10 @@ void changeRGB(string& s) {
     }
 
     if (s.find("#") != string::npos) {
-        s = hexMap[s];
+        for (int i = 1; i < s.size(); i++) {
+            s[i] = toupper(s[i]);
+        }
+        processHex(s);
     }
     else {
         for (int i = 0; i < s.size(); i++) {
@@ -34,12 +88,12 @@ Shape::Shape()
     this->strokeOpacity = 1.5;
     this->strokeWidth = 2;
     this->hasStroke = false;
-    this->translate = Points({0.0, 0.0});
+    this->translate = Points({ 0.0, 0.0 });
     this->rotate = 0;
-    this->scale = Points({0.0, 0.0});
+    this->scale = Points({ 0.0, 0.0 });
 }
 
-void Shape::drawShape(Graphics &graphics) {
+void Shape::drawShape(Graphics& graphics) {
 
 }
 
@@ -52,10 +106,10 @@ RectangleSVG::RectangleSVG()
     height = 0;
 }
 
-void RectangleSVG::drawShape(Graphics &graphics)
-{   
-    
-    
+void RectangleSVG::drawShape(Graphics& graphics)
+{
+
+
     unsigned char fillalpha, strokealpha;
     fillalpha = opacity2alpha(fillOpacity);
     strokealpha = opacity2alpha(strokeOpacity);
@@ -77,30 +131,37 @@ void RectangleSVG::drawShape(Graphics &graphics)
 TextSVG::TextSVG()
 {
     point.x = point.y = 0;
-    int fontSize = 12;
+    int fontSize = 16;
     info = "";
+    dx = dy = 0;
 }
 
-void TextSVG::drawShape(Graphics &graphics)
+void TextSVG::drawShape(Graphics& graphics)
 {
-    
     unsigned char fillalpha, strokealpha;
     fillalpha = opacity2alpha(fillOpacity);
     strokealpha = opacity2alpha(strokeOpacity);
-    FontFamily fontFamily(this -> fontFamily);
+    FontFamily fontFamily(this->fontFamily);
     Font font(&fontFamily, fontSize, FontStyleRegular, UnitPixel);
     PointF pointF(point.x - fontSize, point.y - fontSize);
 
     wstring infostr = wstring(info.begin(), info.end());
-    const WCHAR *infocstr = infostr.c_str();
+    const WCHAR* infocstr = infostr.c_str();
     GraphicsContainer container = graphics.BeginContainer();
     graphics.SetTextRenderingHint(TextRenderingHintAntiAlias);
     graphics.TranslateTransform(translate.x, translate.y);
     graphics.ScaleTransform(scale.x, scale.y);
     graphics.RotateTransform(rotate);
+    graphics.TranslateTransform(dx, dy);
+    GraphicsPath myPath;
+    myPath.AddString(infocstr, -1, &fontFamily, FontStyleRegular, fontSize, pointF, NULL);
+    Pen pen(Color(strokealpha, stroke.r, stroke.g, stroke.b), strokeWidth);
+    
     SolidBrush solidBrush(Color(fillalpha, fill.r, fill.g, fill.b));
     graphics.DrawString(infocstr, -1, &font, pointF, &solidBrush);
+    graphics.DrawPath(&pen, &myPath);
     graphics.EndContainer(container);
+
 }
 
 LineSVG::LineSVG()
@@ -108,14 +169,15 @@ LineSVG::LineSVG()
     from.x = from.y = to.x = to.y = 0;
 }
 
-void LineSVG::drawShape(Graphics &graphics)
+void LineSVG::drawShape(Graphics& graphics)
 {
-    graphics.SetPixelOffsetMode(PixelOffsetModeHighQuality);
-    graphics.SetSmoothingMode(SmoothingModeAntiAlias);
+    
     unsigned char fillalpha, strokealpha;
     fillalpha = opacity2alpha(fillOpacity);
     strokealpha = opacity2alpha(strokeOpacity);
     GraphicsContainer container = graphics.BeginContainer();
+    graphics.SetPixelOffsetMode(PixelOffsetModeHighQuality);
+    graphics.SetSmoothingMode(SmoothingModeAntiAlias);
     graphics.TranslateTransform(translate.x, translate.y);
     graphics.ScaleTransform(scale.x, scale.y);
     graphics.RotateTransform(rotate);
@@ -130,9 +192,9 @@ CircleSVG::CircleSVG()
     radius = 0.0;
 }
 
-void CircleSVG::drawShape(Graphics &graphics)
+void CircleSVG::drawShape(Graphics& graphics)
 {
-    
+
     unsigned char fillalpha, strokealpha;
     fillalpha = opacity2alpha(fillOpacity);
     strokealpha = opacity2alpha(strokeOpacity);
@@ -155,9 +217,9 @@ PolylineSVG::PolylineSVG()
     points.clear();
 }
 
-void PolylineSVG::drawShape(Graphics &graphics)
+void PolylineSVG::drawShape(Graphics& graphics)
 {
-    
+
     unsigned char fillalpha, strokealpha;
     fillalpha = opacity2alpha(fillOpacity);
     strokealpha = opacity2alpha(strokeOpacity);
@@ -165,9 +227,9 @@ void PolylineSVG::drawShape(Graphics &graphics)
     vector<PointF> newP;
     for (int i = 0; i < points.size(); i++)
     {
-        newP.push_back(PointF{points[i].x, points[i].y});
+        newP.push_back(PointF{ points[i].x, points[i].y });
     }
-    PointF *p = newP.data();
+    PointF* p = newP.data();
     graphics.TranslateTransform(translate.x, translate.y);
     graphics.ScaleTransform(scale.x, scale.y);
     graphics.RotateTransform(rotate);
@@ -187,9 +249,9 @@ EllipseSVG::EllipseSVG()
     radiusX = radiusY = 0.0;
 }
 
-void EllipseSVG::drawShape(Graphics &graphics)
+void EllipseSVG::drawShape(Graphics& graphics)
 {
-    
+
     unsigned char fillalpha, strokealpha;
     fillalpha = opacity2alpha(fillOpacity);
     strokealpha = opacity2alpha(strokeOpacity);
@@ -213,10 +275,8 @@ PolygonSVG::PolygonSVG()
     points.clear();
 }
 
-void PolygonSVG::drawShape(Graphics &graphics)
+void PolygonSVG::drawShape(Graphics& graphics)
 {
-    graphics.SetPixelOffsetMode(PixelOffsetModeHighQuality);
-    graphics.SetSmoothingMode(SmoothingModeAntiAlias);
     unsigned char fillalpha, strokealpha;
     fillalpha = opacity2alpha(fillOpacity);
     strokealpha = opacity2alpha(strokeOpacity);
@@ -224,10 +284,12 @@ void PolygonSVG::drawShape(Graphics &graphics)
     vector<PointF> newP;
     for (int i = 0; i < points.size(); i++)
     {
-        newP.push_back(PointF{points[i].x, points[i].y});
+        newP.push_back(PointF{ points[i].x, points[i].y });
     }
-    PointF *p = newP.data();
+    PointF* p = newP.data();
     GraphicsContainer container = graphics.BeginContainer();
+    graphics.SetPixelOffsetMode(PixelOffsetModeHighQuality);
+    graphics.SetSmoothingMode(SmoothingModeAntiAlias);
     graphics.TranslateTransform(translate.x, translate.y);
     graphics.ScaleTransform(scale.x, scale.y);
     graphics.RotateTransform(rotate);
@@ -237,7 +299,7 @@ void PolygonSVG::drawShape(Graphics &graphics)
     graphics.EndContainer(container);
 }
 
-void setProperties(char *nodeName, vector<pair<string, string>> a, Graphics &graphics)
+void setProperties(char* nodeName, vector<pair<string, string>> a, Graphics& graphics)
 {
     //! Chỗ này có time thì sửa lại chung setBesides và drawShape
 
@@ -291,7 +353,7 @@ void setProperties(char *nodeName, vector<pair<string, string>> a, Graphics &gra
     }
 }
 
-RGB parseRGB(string &s) // rgb()
+RGB parseRGB(string& s) // rgb()
 {
     changeRGB(s);
     RGB c;
@@ -319,7 +381,7 @@ RGB parseRGB(string &s) // rgb()
     // cout << static_cast<int>(c.r) << " " << static_cast<int>(c.g) << " " << static_cast<int>(c.b) << endl;
     return c;
 }
-void Shape::setShape(const string &attributeName, string &attributeValue, bool fo, bool f, bool s, bool sw, bool so)
+void Shape::setShape(const string& attributeName, string& attributeValue, bool fo, bool f, bool s, bool sw, bool so)
 {
     if (attributeName == "fill-opacity")
     {
@@ -338,7 +400,7 @@ void Shape::setShape(const string &attributeName, string &attributeValue, bool f
             this->hasStroke = true;
             this->stroke = parseRGB(attributeValue);
         }
-        
+
     }
     else if (attributeName == "stroke-width")
     {
@@ -347,7 +409,7 @@ void Shape::setShape(const string &attributeName, string &attributeValue, bool f
             this->hasStroke = true;
             this->strokeWidth = stoi(attributeValue);
         }
-        
+
     }
     else if (attributeName == "stroke-opacity")
     {
@@ -356,7 +418,7 @@ void Shape::setShape(const string &attributeName, string &attributeValue, bool f
             this->hasStroke = true;
             this->strokeOpacity = stod(attributeValue);
         }
-        
+
     }
 
     else if (attributeName == "transform")
@@ -399,8 +461,8 @@ void RectangleSVG::setBesides(vector<pair<string, string>> a)
     bool fo = 0, f = 0, so = 0, sw = 0, s = 0;
     for (int i = 0; i < a.size(); i++)
     {
-        const string &attributeName = a[i].first;
-        string &attributeValue = a[i].second;
+        const string& attributeName = a[i].first;
+        string& attributeValue = a[i].second;
         if (attributeName == "x")
         {
             this->point.x = stoi(attributeValue);
@@ -432,15 +494,15 @@ void TextSVG::setBesides(vector<pair<string, string>> a)
     bool fo = 0, f = 0, so = 0, sw = 0, s = 0;
     for (int i = 0; i < a.size(); i++)
     {
-        const string &attributeName = a[i].first;
-        string &attributeValue = a[i].second;
+        const string& attributeName = a[i].first;
+        string& attributeValue = a[i].second;
         if (attributeName == "x")
         {
-            this->point.x = stoi(attributeValue);
+            this->point.x = stof(attributeValue);
         }
         else if (attributeName == "y")
         {
-            this->point.y = stoi(attributeValue);
+            this->point.y = stof(attributeValue);
         }
         else if (attributeName == "font-size")
         {
@@ -465,8 +527,8 @@ void CircleSVG::setBesides(vector<pair<string, string>> a)
     bool fo = 0, f = 0, so = 0, sw = 0, s = 0;
     for (int i = 0; i < a.size(); i++)
     {
-        const string &attributeName = a[i].first;
-        string &attributeValue = a[i].second;
+        const string& attributeName = a[i].first;
+        string& attributeValue = a[i].second;
         if (attributeName == "cx")
         {
             this->point.x = stoi(attributeValue);
@@ -528,8 +590,8 @@ void PolylineSVG::setBesides(vector<pair<string, string>> a)
     bool fo = 0, f = 0, so = 0, sw = 0, s = 0;
     for (int i = 0; i < a.size(); i++)
     {
-        const string &attributeName = a[i].first;
-        string &attributeValue = a[i].second;
+        const string& attributeName = a[i].first;
+        string& attributeValue = a[i].second;
         if (attributeName == "points")
         {
             this->points = parsePoints(attributeValue);
@@ -549,8 +611,8 @@ void EllipseSVG::setBesides(vector<pair<string, string>> a)
     bool fo = 0, f = 0, so = 0, sw = 0, s = 0;
     for (int i = 0; i < a.size(); i++)
     {
-        const string &attributeName = a[i].first;
-        string &attributeValue = a[i].second;
+        const string& attributeName = a[i].first;
+        string& attributeValue = a[i].second;
         if (attributeName == "cx")
         {
             this->c.x = stoi(attributeValue);
@@ -616,8 +678,8 @@ void PolygonSVG::setBesides(vector<pair<string, string>> a)
     bool fo = 0, f = 0, so = 0, sw = 0, s = 0;
     for (int i = 0; i < a.size(); i++)
     {
-        const string &attributeName = a[i].first;
-        string &attributeValue = a[i].second;
+        const string& attributeName = a[i].first;
+        string& attributeValue = a[i].second;
 
         if (attributeName == "points")
         {
@@ -678,9 +740,9 @@ vector<pair<char, vector<Points>>> parsePath(string pathData)
                 ss.unget();
                 ss >> x >> y;
                 cout << x << " " << y << endl;
-                points.push_back({x, y});
+                points.push_back({ x, y });
             }
-            commands.push_back({command, points});
+            commands.push_back({ command, points });
             break;
         }
         case 'H':
@@ -688,8 +750,8 @@ vector<pair<char, vector<Points>>> parsePath(string pathData)
         {
             float x;
             ss >> x;
-            points.push_back({x, 0});
-            commands.push_back({command, points});
+            points.push_back({ x, 0 });
+            commands.push_back({ command, points });
             break;
         }
         case 'V':
@@ -697,13 +759,13 @@ vector<pair<char, vector<Points>>> parsePath(string pathData)
         {
             float y;
             ss >> y;
-            points.push_back({0, y});
-            commands.push_back({command, points});
+            points.push_back({ 0, y });
+            commands.push_back({ command, points });
             break;
         }
         case 'Z': case 'z':
         {
-            commands.push_back({command, points});
+            commands.push_back({ command, points });
             break;
         }
         }
@@ -717,7 +779,7 @@ void PathSVG::setBesides(vector<pair<string, string>> a)
     bool fo = 0, f = 0, so = 0, sw = 0, s = 0;
     for (int i = 0; i < a.size(); i++)
     {
-        const string &attributeName = a[i].first;
+        const string& attributeName = a[i].first;
         string attributeValue = a[i].second;
 
         if (attributeName == "d")
@@ -738,7 +800,7 @@ void PathSVG::updatePoint(Points newPoint)
     this->curPoint = newPoint;
 }
 
-void PathSVG::drawShape(Graphics &graphics)
+void PathSVG::drawShape(Graphics& graphics)
 {
 
     unsigned char fillalpha, strokealpha;
@@ -756,18 +818,18 @@ void PathSVG::drawShape(Graphics &graphics)
         char nameCommand = dData[i].first;
         vector<Points> data = dData[i].second;
         if (i == 0)
-        {   
+        {
             startPoint = data[0];
             curPoint = data[0];
             if (nameCommand == 'M' || nameCommand == 'm')
             {
                 if (data.size() > 1)
                 {
-                    myPath.AddLine(Point{int(curPoint.x), int(curPoint.y)}, Point{int(data[0].x), int(data[0].y)});
+                    myPath.AddLine(Point{ int(curPoint.x), int(curPoint.y) }, Point{ int(data[0].x), int(data[0].y) });
                     updatePoint(data[0]);
                     for (int i = 1; i < data.size(); i++)
                     {
-                        myPath.AddLine(Point{int(data[i - 1].x), int(data[i - 1].y)}, Point{int(data[i].x), int(data[i].y)});
+                        myPath.AddLine(Point{ int(data[i - 1].x), int(data[i - 1].y) }, Point{ int(data[i].x), int(data[i].y) });
                         updatePoint(data[i]);
                     }
                 }
@@ -777,15 +839,15 @@ void PathSVG::drawShape(Graphics &graphics)
         }
         else
         {
-            if (nameCommand == 'M'){
-            
+            if (nameCommand == 'M') {
+
                 if (data.size() > 1)
                 {
-                    myPath.AddLine(Point{int(curPoint.x), int(curPoint.y)}, Point{int(data[0].x), int(data[0].y)});
+                    myPath.AddLine(Point{ int(curPoint.x), int(curPoint.y) }, Point{ int(data[0].x), int(data[0].y) });
                     updatePoint(data[0]);
                     for (int i = 1; i < data.size(); i++)
                     {
-                        myPath.AddLine(Point{int(data[i - 1].x), int(data[i - 1].y)}, Point{int(data[i].x), int(data[i].y)});
+                        myPath.AddLine(Point{ int(data[i - 1].x), int(data[i - 1].y) }, Point{ int(data[i].x), int(data[i].y) });
                         updatePoint(data[i]);
                     }
                     startPoint = data[data.size() - 1];
@@ -802,7 +864,7 @@ void PathSVG::drawShape(Graphics &graphics)
                 {
                     myPath.AddLine(Point{ int(curPoint.x), int(curPoint.y) }, Point{ int(data[0].x + curPoint.x), int(data[0].y + curPoint.y) });
                     updatePoint(data[0]);
-                    
+
                     for (int i = 1; i < data.size(); i++)
                     {
                         myPath.AddLine(Point{ int(curPoint.x), int(curPoint.y) }, Point{ int(data[i].x + curPoint.x), int(data[i].y + curPoint.y) });
@@ -812,7 +874,7 @@ void PathSVG::drawShape(Graphics &graphics)
                 }
                 else
                 {
-                    
+
                     startPoint = { curPoint.x + data[0].x, curPoint.y + data[0].y };
                     updatePoint(Points{ curPoint.x + data[0].x, curPoint.y + data[0].y });
                 }
@@ -831,7 +893,7 @@ void PathSVG::drawShape(Graphics &graphics)
                     myPath.AddLine(Point{ int(curPoint.x), int(curPoint.y) }, Point{ int(curPoint.x + data[i].x), int(curPoint.y + data[i].y) });
                     updatePoint(Points{ curPoint.x + data[i].x, curPoint.y + data[i].y });
                 }
-                
+
             }
             else if (nameCommand == 'H')
             {
@@ -842,7 +904,7 @@ void PathSVG::drawShape(Graphics &graphics)
             }
             else if (nameCommand == 'h')
             {
-                for (int i = 0; i < data.size(); i++){
+                for (int i = 0; i < data.size(); i++) {
                     myPath.AddLine(Point{ int(curPoint.x), int(curPoint.y) }, Point{ int(curPoint.x + data[i].x), int(curPoint.y) });
                     updatePoint(Points{ data[i].x + curPoint.x, curPoint.y });
                 }
@@ -877,7 +939,7 @@ void PathSVG::drawShape(Graphics &graphics)
             }
             else if (nameCommand == 'Z' || nameCommand == 'z')
             {
-                myPath.AddLine(Point{int(curPoint.x), int(curPoint.y)}, Point{int(startPoint.x), int(startPoint.y)});
+                myPath.AddLine(Point{ int(curPoint.x), int(curPoint.y) }, Point{ int(startPoint.x), int(startPoint.y) });
                 updatePoint(startPoint);
                 myPath.CloseFigure();
             }
