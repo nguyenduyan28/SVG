@@ -49,7 +49,8 @@ struct Points
 {
     float x, y;
 };
-
+void applyAttributesToChildren(xml_node<>* parentNode, vector<pair<string, string>>& attributes);
+void read(xml_node<>* node, vector<pair<string, string>>& gAttributes, Graphics& graphics);
 void setProperties(char *nodeName, vector<pair<string, string>> a, Graphics &graphics);
 void DrawSVGFile(string &filename, HDC hdc);
 
@@ -346,7 +347,7 @@ protected:
 public:
     Shape();
     virtual void drawShape(Graphics &graphics);
-    void setShape(const string &a, string &b);
+    void setShape(const string &a, string &b, bool fo, bool f, bool s, bool sw, bool so);
     virtual void setBesides(vector<pair<string, string>> a);
 };
 vector<Points> parsePoints(const string &p);
