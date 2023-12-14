@@ -382,7 +382,7 @@ RGB parseRGB(string& s) // rgb()
     // cout << static_cast<int>(c.r) << " " << static_cast<int>(c.g) << " " << static_cast<int>(c.b) << endl;
     return c;
 }
-void Shape::setShape(const string& attributeName, string& attributeValue, bool fo, bool f, bool s, bool sw, bool so)
+void Shape::setShape(const string& attributeName, string& attributeValue, bool& fo, bool& f, bool& s, bool& sw, bool& so)
 {
     if (attributeName == "fill-opacity")
     {
