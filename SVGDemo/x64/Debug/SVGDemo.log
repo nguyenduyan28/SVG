@@ -1,8 +1,1 @@
-﻿  SVGDemo.cpp
-D:\sample\SVG-src3\SVG-main\SVGDemo\SVGDemo.cpp(143,15): warning C4244: 'return': conversion from 'WPARAM' to 'int', possible loss of data
-D:\sample\SVG-src3\SVG-main\SVGDemo\SVGDemo.cpp(98,25): warning C4101: 'hdc': unreferenced local variable
-D:\sample\SVG-src3\SVG-main\SVGDemo\SVGDemo.cpp(99,25): warning C4101: 'ps': unreferenced local variable
-D:\sample\SVG-src3\SVG-main\SVGDemo\SVGDemo.cpp(168,27): warning C4129: 's': unrecognized character escape sequence
-D:\sample\SVG-src3\SVG-main\SVGDemo\SVGDemo.cpp(168,27): warning C4129: 'S': unrecognized character escape sequence
-D:\sample\SVG-src3\SVG-main\SVGDemo\SVGDemo.cpp(168,27): warning C4129: 'p': unrecognized character escape sequence
-  SVGDemo.vcxproj -> D:\sample\SVG-src3\SVG-main\x64\Debug\SVGDemo.exe
+﻿  SVGDemo.vcxproj -> G:\My Drive\US\HK4 2024\OOP - SVG\SVG\x64\Debug\SVGDemo.exe
