@@ -7,12 +7,17 @@
   fill="none" />
   <path d="M100,350 C250,150 250,150 400,350" stroke="rgb(0,0,255)"
   stroke-width="5" fill="none" />
+<<<<<<< HEAD
   <g stroke="black" stroke-width="3" fill="rgb(0,0,0)" transform="rotate(3.0) translate(10, 10)" >
 	<g stroke="green" cx="200" transform="rotate(2.0) translate(10, 10)" >
 <path d="M175,200 325,200" stroke="rgb(0,255,0)" stroke-width="3"
   fill="none" transform="rotate(3.0) translate(10, 10)" />
     <circle cx="100" cy="350" r="3"/>
 	</g>
+=======
+  <g stroke="black" stroke-width="3" fill="rgb(0,0,0)">
+    <circle cx="100" cy="350" r="3" />
+>>>>>>> d89d3e82f2bbe2a2fff60642ef7a6701bfd1ad66
     <circle cx="250" cy="50" r="3" />
     <circle cx="400" cy="350" r="3" />
   </g>
