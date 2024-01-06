@@ -71,13 +71,31 @@ void read(xml_node<>* node, vector<pair<string, string>>& gAttributes, Graphics&
                 {
                     //cout << b[i].first << " " << b[i].second << endl;
                 }
-
                 char* attributeName = attr->name();
                 setProperties(attributeName, b, graphics);
+            }  
+        }
+        if (strcmp(nodeName, "defs") == 0) {
+            // Process <defs> element to access gradients
+            for (xml_node<>* childNode = node->first_node(); childNode; childNode = childNode->next_sibling()) {
+                char* attributeName = childNode->name();
+                //cout << childNode->name() << " ";
+                if (strcmp(childNode->name(), "radialGradient") == 0) {
+                    vector<pair<string, string>> gradientAttributes;
+                    xml_attribute<>* Attr = childNode->first_attribute();
+                    while (Attr) {
 
+                        gradientAttributes.push_back({ Attr->name(),  Attr->value() });
+                        Attr = Attr->next_attribute();
+                    }
+                    setProperties(attributeName, gradientAttributes, graphics);
+                    for (int i = 0; i < gradientAttributes.size(); i++)
+                    {
 
+                        //cout << gradientAttributes[i].first << " " << gradientAttributes[i].second << endl;
+                    }
+                }
             }
-          
         }
         if (strcmp(nodeName, "g") == 0 || strcmp(nodeName, "svg") == 0) {
             // If the node is <g>, apply its attributes to its children
