@@ -332,3 +332,14 @@ public:
     void setBesides(vector<pair<string, string>> a);
 };
 
+class ViewBoxSVG : public Shape
+{
+private:
+    Points point;
+    int  width, height;
+
+public:
+    ViewBoxSVG();
+    // void drawShape(Graphics& graphics) override;
+    void setBesides(vector<pair<string, string>> a) override;
+};
