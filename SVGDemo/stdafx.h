@@ -343,3 +343,21 @@ public:
     void drawShape(Graphics& graphics) override;
     void setBesides(vector<pair<string, string>> a) override;
 };
+class radialGradientSVG : public Shape
+{
+private:
+    string gradientId;
+    double cx;
+    double cy;
+    int r;
+    string xlinkHref;
+    string gradientUnits;
+    string gradientTransform;
+    double fx;
+    double fy;
+
+public:
+    radialGradientSVG();
+    // void drawShape(Graphics& graphics) override;
+    void setBesides(vector<pair<string, string>> a) override;
+};
