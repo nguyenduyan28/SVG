@@ -183,5 +183,10 @@ void setProperties(char* nodeName, vector<pair<string, string>> a, Graphics& gra
         ViewBoxSVG r;
         r.setBesides(a);
     }
+     else if (strcmp(nodeName, "radialGradient") == 0)
+    {
+        radialGradientSVG r;
+        r.setBesides(a);
+    }
 }
 
