@@ -35,3 +35,20 @@ void ViewBoxSVG::setBesides(vector<pair<string, string>> a)
         this->strokeOpacity = 0;
     }
 }
+
+void ViewBoxSVG::drawShape(Graphics &graphics)
+{
+    RECT windowRect;
+    GetClientRect(hwnd, &windowRect);
+    float targetWidth = static_cast<float>(windowRect.right - windowRect.left);
+    float targetHeight = static_cast<float>(windowRect.bottom - windowRect.top);
+
+    float xScale = targetWidth / width;
+    float yScale = targetHeight / height;
+
+    Matrix transformMatrix;
+    transformMatrix.Scale(xScale, yScale);
+    transformMatrix.Translate(-point.x, -point.y);
+
+    graphics.SetTransform(&transformMatrix);
+}
