@@ -1,4 +1,4 @@
-﻿#include "stdafx.h"
+#include "stdafx.h"
 
 
 
@@ -57,7 +57,29 @@ void read(xml_node<>* node, vector<pair<string, string>>& gAttributes, Graphics&
             cout << a[i].first << " " << a[i].second << endl;
         }
         setProperties(nodeName, a, graphics);
-        if (strcmp(nodeName, "g") == 0) {
+        if (strcmp(nodeName, "svg") == 0) {
+            vector<pair<string, string>> b;
+            for (xml_attribute<>* attr = node->first_attribute("viewBox"); attr; attr = attr->next_attribute()) {
+
+
+                if (strcmp(attr->name(), "viewBox") == 0) {
+                    b.push_back({ attr->name(), attr->value() });
+
+
+                }
+                for (int i = 0; i < b.size(); i++)
+                {
+                    //cout << b[i].first << " " << b[i].second << endl;
+                }
+
+                char* attributeName = attr->name();
+                setProperties(attributeName, b, graphics);
+
+
+            }
+          
+        }
+        if (strcmp(nodeName, "g") == 0 || strcmp(nodeName, "svg") == 0) {
             // If the node is <g>, apply its attributes to its children
             applyAttributesToChildren(node, gAttributes);
             read(node->first_node(), gAttributes, graphics);
@@ -79,7 +101,7 @@ void DrawSVGFile(wstring& filename, HDC hdc) {
     doc.parse<0>(&buffer[0]);
 
     xml_node<>* rootNode = doc.first_node();
-    xml_node<>* node = rootNode->first_node();
+    xml_node<>* node = rootNode;
 
     vector<pair<string, string>> gAttributes;
     read(node, gAttributes, graphics);
@@ -165,7 +187,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
         }
         else {
             // Default SVG file name if not provided in command line
-            svgFilename = L"svg-16.svg";
+            svgFilename = L"svg-08.svg";
         }
 
         DrawSVGFile(svgFilename, hdc);
