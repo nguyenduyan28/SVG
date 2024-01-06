@@ -178,5 +178,10 @@ void setProperties(char* nodeName, vector<pair<string, string>> a, Graphics& gra
         r.setBesides(a);
         r.drawShape(graphics);
     }
+     else if (strcmp(nodeName, "viewBox") == 0)
+    {
+        ViewBoxSVG r;
+        r.setBesides(a);
+    }
 }
 
