@@ -340,6 +340,6 @@ private:
 
 public:
     ViewBoxSVG();
-    // void drawShape(Graphics& graphics) override;
+    void drawShape(Graphics& graphics) override;
     void setBesides(vector<pair<string, string>> a) override;
 };
