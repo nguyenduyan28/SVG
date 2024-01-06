@@ -23,9 +23,11 @@ void RectangleSVG::drawShape(Graphics& graphics)
     graphics.SetSmoothingMode(SmoothingModeAntiAlias);
     Pen pen(Color(strokealpha, stroke.r, stroke.b, stroke.g), strokeWidth);
     Rect rect(point.x, point.y, width, height);
-    graphics.DrawRectangle(&pen, rect);
+    if (hasStroke)
+        graphics.DrawRectangle(&pen, rect);
     SolidBrush brush(Color(fillalpha, fill.r, fill.g, fill.b));
-    graphics.FillRectangle(&brush, rect);
+    if (hasColor)
+        graphics.FillRectangle(&brush, rect);
     graphics.EndContainer(container);
 }
 

@@ -33,7 +33,7 @@ using namespace Gdiplus;
 // TODO: reference additional headers your program requires here
 struct RGB
 {
-    unsigned char r, g, b;
+    int r, g, b;
     RGB& operator=(const RGB& other)
     {
         if (this != &other)
@@ -204,7 +204,7 @@ std::map<std::string, std::string> colorMap = {
     {"lightgray", "rgb(211,211,211)"},
     {"gainsboro", "rgb(220,220,220)"},
     {"whitesmoke", "rgb(245,245,245)"},
-    {"none", "rgb(255,255,255)"},
+    {"none", "rgb(-1 , -1, -1)"},
     {"white", "rgb(255,255,255)"}
 };
 
@@ -217,7 +217,7 @@ protected:
     RGB stroke;
     int strokeWidth;
     double strokeOpacity;
-    bool hasStroke;
+    bool hasStroke, hasColor;
     Points translate;
     double rotate;
     Points scale;
@@ -249,7 +249,10 @@ private:
     Points point;
     int fontSize;
     string info;
-    const wchar_t* fontFamily = L"Times New Roman";
+    string fontFamily;
+    string textAnchor;
+    string fontStyle;
+    
     int dx, dy;
 
 public:

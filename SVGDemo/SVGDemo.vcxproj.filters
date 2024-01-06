@@ -65,6 +65,9 @@
     <ClCompile Include="src\CircleSVG.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\EllipseSVG.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SVGDemo.rc">
