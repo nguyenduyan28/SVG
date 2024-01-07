@@ -14,11 +14,57 @@ void LineSVG::drawShape(Graphics& graphics)
     GraphicsContainer container = graphics.BeginContainer();
     graphics.SetPixelOffsetMode(PixelOffsetModeHighQuality);
     graphics.SetSmoothingMode(SmoothingModeAntiAlias);
+    /*for (string s : transformCommand) {
+        if (s == "translate")
+            graphics.TranslateTransform(translate.x, translate.y);
+        if (s == "scale")
+            graphics.ScaleTransform(scale.x, scale.y);
+        if (s == "rotate")
+            graphics.RotateTransform(rotate);
+    }*/
     graphics.TranslateTransform(translate.x, translate.y);
     graphics.ScaleTransform(scale.x, scale.y);
     graphics.RotateTransform(rotate);
-    Pen pen(Color(strokealpha, stroke.r, stroke.g, stroke.b), strokeWidth);
-    graphics.DrawLine(&pen, from.x, from.y, to.x, to.y);
+    if (!hasStrokeGradient.empty()) {
+        this->gradient = Gradients[hasGradient];
+        if (gradient.type == "linearGradient") {
+            Color colors[100];
+            REAL pos[100];
+            for (int i = 0; i < gradient.stops.size(); i++) {
+                colors[i] = Color(gradient.stops[i].color.r, gradient.stops[i].color.g, gradient.stops[i].color.b);
+                pos[i] = gradient.stops[i].offset;
+            }
+            LinearGradientBrush brush(Point(gradient.startPoint.x, gradient.startPoint.y), Point(gradient.endPoint.x, gradient.endPoint.y),
+                Color(gradient.stops[0].opacity * 255 * fillOpacity, gradient.stops[0].color.r, gradient.stops[0].color.g, gradient.stops[0].color.b),
+                Color(gradient.stops[gradient.stops.size() - 1].opacity * 255 * fillOpacity, gradient.stops[gradient.stops.size() - 1].color.r, gradient.stops[gradient.stops.size() - 1].color.g, gradient.stops[gradient.stops.size() - 1].color.b)
+            );
+            brush.SetInterpolationColors(colors, pos, gradient.stops.size());
+            Pen pen(&brush, strokeWidth);
+            graphics.DrawLine(&pen, from.x, from.y, to.x, to.y);
+        }
+        if (gradient.type == "radialGradient") {
+            Color colors[100];
+            REAL pos[100];
+            GraphicsPath myPath;
+            for (int i = 0; i < gradient.stops.size(); i++) {
+                colors[i] = Color(gradient.stops[i].color.r, gradient.stops[i].color.g, gradient.stops[i].color.b);
+                pos[i] = gradient.stops[i].offset;
+            }
+            PathGradientBrush brush(&myPath);
+            int size = gradient.stops.size();
+            brush.SetSurroundColors(colors, &size);
+            brush.SetInterpolationColors(colors, pos, size);
+            Pen pen(&brush, strokeWidth);
+            graphics.DrawLine(&pen, from.x, from.y, to.x, to.y);
+
+        }
+    }
+    else {
+        Pen pen(Color(strokealpha, stroke.r, stroke.g, stroke.b), strokeWidth);
+        if (hasStroke) {
+            graphics.DrawLine(&pen, from.x, from.y, to.x, to.y);
+        }
+    }
     graphics.EndContainer(container);
 }
 

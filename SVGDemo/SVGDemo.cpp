@@ -1,8 +1,124 @@
 ﻿#include "stdafx.h"
 
 
+extern map<string, GradientSVG> Gradients;
 
+void readLinearGr(xml_node<>* node)
+{
 
+    while (node)
+    {
+        GradientSVG r;
+        if (strcmp(node->name(), "linearGradient") == 0)
+        {
+            r.type = node->name();
+            xml_attribute<>* gradientIdAttr = node->first_attribute("id");
+            if (gradientIdAttr) {
+                r.id = gradientIdAttr->value();
+            }
+            xml_attribute<>* x1Attr = node->first_attribute("x1");
+            xml_attribute<>* y1Attr = node->first_attribute("y1");
+            xml_attribute<>* x2Attr = node->first_attribute("x2");
+            xml_attribute<>* y2Attr = node->first_attribute("y2");
+            r.startPoint.x = 0;
+            r.startPoint.y = 0;
+            r.endPoint.x = 0;
+            r.endPoint.y = 0;
+            if (x1Attr && y1Attr && x2Attr && y2Attr)
+            {
+                r.startPoint.x = stof(x1Attr->value());
+                r.startPoint.y = stof(y1Attr->value());
+                r.endPoint.x = stof(x2Attr->value());
+                r.endPoint.y = stof(y2Attr->value());
+
+            }
+            xml_attribute<>* graUnit = node->first_attribute("gradientUnits");
+            if (graUnit)
+            {
+                r.gradientUnits = graUnit->value();
+            }
+            xml_node<>* stopNode = node->first_node();
+            while (stopNode)
+            {
+                xml_attribute<>* attributeNode = stopNode->first_attribute();
+                GradientStop gr;
+                while (attributeNode)
+                {
+                    char* attributeName = attributeNode->name();
+                    char* attributeValue = attributeNode->value();
+                    gr.opacity = 1.5;
+                    if (strcmp(attributeName, "stop-opacity") == 0)
+                    {
+                        gr.opacity = stod(attributeValue);
+                    }
+                    else if (strcmp(attributeName, "offset") == 0)
+                    {
+                        gr.offset = stod(attributeValue);
+                    }
+                    else if (strcmp(attributeName, "stop-color") == 0)
+                    {
+                        string s(attributeValue);
+                        changeRGB(s);
+                        gr.color = parseRGB(s);
+                    }
+                    attributeNode = attributeNode->next_attribute();
+                }
+                r.stops.push_back(gr);
+                stopNode = stopNode->next_sibling();
+            }
+        }
+        else if (strcmp(node->name(), "radialGradient") == 0)
+        {
+            xml_attribute<>* currentAttribute = node->first_attribute();
+            while (currentAttribute)
+            {
+                char* attributeName = currentAttribute->name();
+                char* attributeValue = currentAttribute->value();
+                if (strcmp(attributeName, "id") == 0)
+                {
+                    r.id = attributeValue;
+
+                }
+                else if (attributeName == "cx")
+                {
+                    r.startPoint.x = stod(attributeValue);
+
+                }
+                else if (attributeName == "cy")
+                {
+                    r.startPoint.y = stod(attributeValue);
+                }
+                else if (attributeName == "r")
+                {
+                    r.radius = stod(attributeValue);
+                }
+                else if (attributeName == "fx")
+                {
+                    r.endPoint.x = stod(attributeValue);
+                }
+                else if (attributeName == "fy")
+                {
+                    r.endPoint.y = stod(attributeValue);
+                }
+                else if (attributeName == "xlink:href")
+                {
+                    r.xlink = string(attributeValue);
+                    r.xlink = r.xlink.substr(1);
+
+                }
+                else if (attributeName == "gradientUnits")
+                {
+                    r.gradientUnits = attributeValue;
+                }
+                currentAttribute = currentAttribute->next_attribute();
+            }
+
+        }
+        Gradients.insert({ r.id, r });
+        node = node->next_sibling();
+    }
+
+}
 
 
 void applyAttributesToChildren(xml_node<>* parentNode, vector<pair<string, string>>& attributes) {
@@ -29,7 +145,14 @@ void read(xml_node<>* node, vector<pair<string, string>>& gAttributes, Graphics&
         char* nodeName = node->name();
         cout << nodeName << " - ";
 
+
         xml_attribute<>* currentAttribute = node->first_attribute();
+        if (strcmp(nodeName, "defs") == 0)
+        {
+            readLinearGr(node->first_node());
+            node = node->next_sibling();
+            continue;
+        }
 
         vector<pair<string, string>> a;
         gAttributes.clear();
@@ -57,53 +180,7 @@ void read(xml_node<>* node, vector<pair<string, string>>& gAttributes, Graphics&
             cout << a[i].first << " " << a[i].second << endl;
         }
         setProperties(nodeName, a, graphics);
-        if (strcmp(nodeName, "svg") == 0) {
-            vector<pair<string, string>> b;
-            for (xml_attribute<>* attr = node->first_attribute("viewBox"); attr; attr = attr->next_attribute()) {
-
-
-                if (strcmp(attr->name(), "viewBox") == 0) {
-                    b.push_back({ attr->name(), attr->value() });
-
-
-                }
-                for (int i = 0; i < b.size(); i++)
-                {
-                    //cout << b[i].first << " " << b[i].second << endl;
-                }
-
-                char* attributeName = attr->name();
-                setProperties(attributeName, b, graphics);
-            }
-        }
-
-        /*if (strcmp(nodeName, "defs") == 0) {
-            // Process <defs> element to access gradients
-            for (xml_node<>* childNode = node->first_node(); childNode; childNode = childNode->next_sibling()) {
-                char* attributeName = childNode->name();
-                //cout << childNode->name() << " ";
-                if (strcmp(childNode->name(), "radialGradient") == 0) {
-                    vector<pair<string, string>> gradientAttributes;
-                    xml_attribute<>* Attr = childNode->first_attribute();
-                    while (Attr) {
-
-                        gradientAttributes.push_back({ Attr->name(),  Attr->value() });
-                        Attr = Attr->next_attribute();
-                    }
-                    setProperties(attributeName, gradientAttributes, graphics);
-                    for (int i = 0; i < gradientAttributes.size(); i++)
-                    {
-
-                        //cout << gradientAttributes[i].first << " " << gradientAttributes[i].second << endl;
-                    }
-                }
-
-            }
-
-        }
-        */
-
-        if (strcmp(nodeName, "g") == 0 || strcmp(nodeName, "svg") == 0) {
+        if (strcmp(nodeName, "g") == 0) {
             // If the node is <g>, apply its attributes to its children
             applyAttributesToChildren(node, gAttributes);
             read(node->first_node(), gAttributes, graphics);
@@ -125,7 +202,7 @@ void DrawSVGFile(wstring& filename, HDC hdc) {
     doc.parse<0>(&buffer[0]);
 
     xml_node<>* rootNode = doc.first_node();
-    xml_node<>* node = rootNode;
+    xml_node<>* node = rootNode->first_node();
 
     vector<pair<string, string>> gAttributes;
     read(node, gAttributes, graphics);
@@ -211,9 +288,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
         }
         else {
             // Default SVG file name if not provided in command line
-            svgFilename = L"svg-08.svg";
+            svgFilename = L"instagram.svg";
         }
-
         DrawSVGFile(svgFilename, hdc);
         EndPaint(hWnd, &ps);
         return 0;
