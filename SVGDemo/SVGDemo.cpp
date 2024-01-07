@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 
 
 
@@ -71,11 +71,13 @@ void read(xml_node<>* node, vector<pair<string, string>>& gAttributes, Graphics&
                 {
                     //cout << b[i].first << " " << b[i].second << endl;
                 }
+
                 char* attributeName = attr->name();
                 setProperties(attributeName, b, graphics);
-            }  
+            }
         }
-        if (strcmp(nodeName, "defs") == 0) {
+
+        /*if (strcmp(nodeName, "defs") == 0) {
             // Process <defs> element to access gradients
             for (xml_node<>* childNode = node->first_node(); childNode; childNode = childNode->next_sibling()) {
                 char* attributeName = childNode->name();
@@ -95,8 +97,12 @@ void read(xml_node<>* node, vector<pair<string, string>>& gAttributes, Graphics&
                         //cout << gradientAttributes[i].first << " " << gradientAttributes[i].second << endl;
                     }
                 }
+
             }
+
         }
+        */
+
         if (strcmp(nodeName, "g") == 0 || strcmp(nodeName, "svg") == 0) {
             // If the node is <g>, apply its attributes to its children
             applyAttributesToChildren(node, gAttributes);

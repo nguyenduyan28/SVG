@@ -11,24 +11,21 @@ void PolylineSVG::drawShape(Graphics& graphics)
     unsigned char fillalpha, strokealpha;
     fillalpha = opacity2alpha(fillOpacity);
     strokealpha = opacity2alpha(strokeOpacity);
-    
+    Pen pen(Color(strokealpha, stroke.r, stroke.g, stroke.b), strokeWidth);
     vector<PointF> newP;
     for (int i = 0; i < points.size(); i++)
     {
         newP.push_back(PointF{ points[i].x, points[i].y });
     }
     PointF* p = newP.data();
-    
-    GraphicsContainer container = graphics.BeginContainer();
-    Pen pen(Color(strokealpha, stroke.r, stroke.g, stroke.b), strokeWidth);
-    graphics.SetPixelOffsetMode(PixelOffsetModeHighQuality);
-    graphics.SetSmoothingMode(SmoothingModeAntiAlias);
     graphics.TranslateTransform(translate.x, translate.y);
     graphics.ScaleTransform(scale.x, scale.y);
     graphics.RotateTransform(rotate);
+    GraphicsContainer container = graphics.BeginContainer();
+    graphics.SetPixelOffsetMode(PixelOffsetModeHighQuality);
+    graphics.SetSmoothingMode(SmoothingModeAntiAlias);
     SolidBrush brush(Color(fillalpha, fill.r, fill.g, fill.b));
-    if (hasColor)
-        graphics.FillPolygon(&brush, p, newP.size(), FillModeWinding);
+    graphics.FillPolygon(&brush, p, newP.size());
     if (strokeWidth)
         graphics.DrawLines(&pen, p, newP.size());
     graphics.EndContainer(container);

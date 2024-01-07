@@ -33,7 +33,7 @@ using namespace Gdiplus;
 // TODO: reference additional headers your program requires here
 struct RGB
 {
-    int r, g, b;
+    unsigned char r, g, b;
     RGB& operator=(const RGB& other)
     {
         if (this != &other)
@@ -204,7 +204,7 @@ std::map<std::string, std::string> colorMap = {
     {"lightgray", "rgb(211,211,211)"},
     {"gainsboro", "rgb(220,220,220)"},
     {"whitesmoke", "rgb(245,245,245)"},
-    {"none", "rgb(-1 , -1, -1)"},
+    {"none", "rgb(255,255,255)"},
     {"white", "rgb(255,255,255)"}
 };
 
@@ -217,7 +217,7 @@ protected:
     RGB stroke;
     int strokeWidth;
     double strokeOpacity;
-    bool hasStroke, hasColor;
+    bool hasStroke;
     Points translate;
     double rotate;
     Points scale;
@@ -249,10 +249,9 @@ private:
     Points point;
     int fontSize;
     string info;
-    string fontFamily;
+    const wchar_t* fontFamily;
     string textAnchor;
     string fontStyle;
-    
     int dx, dy;
 
 public:
@@ -331,33 +330,15 @@ public:
     void drawShape(Graphics& graphics);
     void setBesides(vector<pair<string, string>> a);
 };
-
 class ViewBoxSVG : public Shape
 {
 private:
     Points point;
     int  width, height;
+    HWND hwnd;
 
 public:
     ViewBoxSVG();
     void drawShape(Graphics& graphics) override;
-    void setBesides(vector<pair<string, string>> a) override;
-};
-class radialGradientSVG : public Shape
-{
-private:
-    string gradientId;
-    double cx;
-    double cy;
-    int r;
-    string xlinkHref;
-    string gradientUnits;
-    string gradientTransform;
-    double fx;
-    double fy;
-
-public:
-    radialGradientSVG();
-    // void drawShape(Graphics& graphics) override;
     void setBesides(vector<pair<string, string>> a) override;
 };

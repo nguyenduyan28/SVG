@@ -18,8 +18,7 @@ void LineSVG::drawShape(Graphics& graphics)
     graphics.ScaleTransform(scale.x, scale.y);
     graphics.RotateTransform(rotate);
     Pen pen(Color(strokealpha, stroke.r, stroke.g, stroke.b), strokeWidth);
-    if (hasColor)
-        graphics.DrawLine(&pen, from.x, from.y, to.x, to.y);
+    graphics.DrawLine(&pen, from.x, from.y, to.x, to.y);
     graphics.EndContainer(container);
 }
 

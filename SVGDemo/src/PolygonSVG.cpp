@@ -11,7 +11,7 @@ void PolygonSVG::drawShape(Graphics& graphics)
     unsigned char fillalpha, strokealpha;
     fillalpha = opacity2alpha(fillOpacity);
     strokealpha = opacity2alpha(strokeOpacity);
-    
+    Pen pen(Color(strokealpha, stroke.r, stroke.g, stroke.b), strokeWidth);
     vector<PointF> newP;
     for (int i = 0; i < points.size(); i++)
     {
@@ -25,9 +25,7 @@ void PolygonSVG::drawShape(Graphics& graphics)
     graphics.ScaleTransform(scale.x, scale.y);
     graphics.RotateTransform(rotate);
     SolidBrush brush(Color(fillalpha, fill.r, fill.g, fill.b));
-    Pen pen(Color(strokealpha, stroke.r, stroke.g, stroke.b), strokeWidth);
-    if (hasColor)
-        graphics.FillPolygon(&brush, p, newP.size(), FillModeWinding);
+    graphics.FillPolygon(&brush, p, newP.size());
     graphics.DrawPolygon(&pen, p, newP.size());
     graphics.EndContainer(container);
 }

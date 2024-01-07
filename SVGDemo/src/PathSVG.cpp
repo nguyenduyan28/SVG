@@ -163,20 +163,6 @@ void PathSVG::drawShape(Graphics& graphics)
                     updatePoint(Points{ curPoint.x + data[i + 2].x, curPoint.y + data[i + 2].y });
                 }
             }
-            else if (nameCommand == 'S')
-            {
-                for (int i = 0; i < data.size(); i = i + 2) {
-                    myPath.AddBezier(Point{ int(curPoint.x), int(curPoint.y) }, Point{ int(data[i].x), int(data[i].y) }, Point{ int(data[i + 1].x), int(data[i + 1].y) }, Point{ int(data[i + 1].x), int(data[i + 1].y) });
-                    updatePoint(Points{ data[i + 1].x, data[i + 1].y });
-                }
-            }
-            else if (nameCommand == 's')
-            {
-                for (int i = 0; i < data.size(); i = i + 2) {
-                    myPath.AddBezier(Point{ int(curPoint.x), int(curPoint.y) }, Point{ int(curPoint.x + data[i].x), int(curPoint.y + data[i].y) }, Point{ int(curPoint.x + data[i + 1].x), int(curPoint.y + data[i + 1].y) }, Point{ int(curPoint.x + data[i + 1].x), int(curPoint.y + data[i + 1].y) });
-                    updatePoint(Points{ curPoint.x + data[i + 1].x, curPoint.y + data[i + 1].y });
-                }
-            }
             else if (nameCommand == 'Z' || nameCommand == 'z')
             {
                 myPath.AddLine(Point{ int(curPoint.x), int(curPoint.y) }, Point{ int(startPoint.x), int(startPoint.y) });
@@ -190,8 +176,7 @@ void PathSVG::drawShape(Graphics& graphics)
     if (hasStroke) {
         graphics.DrawPath(&pen, &myPath);
     }
-    if (hasColor)
-        graphics.FillPath(&brush, &myPath);
+    graphics.FillPath(&brush, &myPath);
     graphics.EndContainer(container);
 }
 
@@ -228,8 +213,6 @@ vector<pair<char, vector<Points>>> parsePath(string pathData)
         case 'l':
         case 'C':
         case 'c':
-        case 's':
-        case 'S':
         {
             float x, y;
             char c;

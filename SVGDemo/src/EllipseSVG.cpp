@@ -21,8 +21,7 @@ void EllipseSVG::drawShape(Graphics& graphics)
     graphics.TranslateTransform(translate.x, translate.y);
     graphics.ScaleTransform(scale.x, scale.y);
     graphics.RotateTransform(rotate);
-    if (hasColor)
-        graphics.FillEllipse(&brush, rect);
+    graphics.FillEllipse(&brush, rect);
     graphics.DrawEllipse(&pen, rect);
     graphics.EndContainer(container);
 }

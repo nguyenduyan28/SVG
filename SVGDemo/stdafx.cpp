@@ -9,7 +9,7 @@ unsigned char opacity2alpha(double opacity)
     return static_cast<unsigned char>(opacity * 255.0);
 }
 
-RGB parseRGB(string& s)
+RGB parseRGB(string &s)
 {
     changeRGB(s);
     RGB c;
@@ -29,9 +29,10 @@ RGB parseRGB(string& s)
             a[i] = 255;
     }
 
-    c.r = (a[0]);
-    c.g = (a[1]);
-    c.b = (a[2]);
+    c.r = static_cast<unsigned char>(a[0]);
+    c.g = static_cast<unsigned char>(a[1]);
+    c.b = static_cast<unsigned char>(a[2]);
+
     return c;
 }
 
@@ -178,15 +179,11 @@ void setProperties(char* nodeName, vector<pair<string, string>> a, Graphics& gra
         r.setBesides(a);
         r.drawShape(graphics);
     }
-     else if (strcmp(nodeName, "viewBox") == 0)
+    else if (strcmp(nodeName, "viewBox") == 0)
     {
         ViewBoxSVG r;
         r.setBesides(a);
-    }
-     else if (strcmp(nodeName, "radialGradient") == 0)
-    {
-        radialGradientSVG r;
-        r.setBesides(a);
+        r.drawShape(graphics);
     }
 }
 

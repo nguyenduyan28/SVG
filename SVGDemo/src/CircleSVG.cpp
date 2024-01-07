@@ -21,8 +21,7 @@ void CircleSVG::drawShape(Graphics& graphics)
     Pen pen(Color(strokealpha, stroke.r, stroke.g, stroke.b), strokeWidth);
     Rect rect(point.x - radius, point.y - radius, radius * 2, radius * 2);
     SolidBrush brush(Color(fillalpha, fill.r, fill.g, fill.b));
-    if (hasColor)
-        graphics.FillEllipse(&brush, rect);
+    graphics.FillEllipse(&brush, rect);
     graphics.DrawEllipse(&pen, rect);
     graphics.EndContainer(container);
 }

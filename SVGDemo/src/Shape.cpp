@@ -28,9 +28,6 @@ void Shape::setShape(const string& attributeName, string& attributeValue, bool& 
     {
         if (f == 0)
             this->fill = parseRGB(attributeValue), f = 1;
-        if (fill.r == -1 || fill.g == -1 || fill.b == -1)
-            hasColor = false;
-        else hasColor = true;
     }
     else if (attributeName == "stroke")
     {
